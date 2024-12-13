@@ -21,12 +21,12 @@ const Login = () => {
     wrapper();
   }, [refreshUserInfo]);
 
-  useEffect(() => {
-    if (user && userInfo) {
-      // logged in users are redirected to home page
-      router.push("/home");
-    }
-  }, [user, userInfo, router]);
+  // useEffect(() => {
+  //   if (user && userInfo) {
+  //     // logged in users are redirected to home page
+  //     router.push("/home");
+  //   }
+  // }, [user, userInfo, router]);
 
   return (
     <>
