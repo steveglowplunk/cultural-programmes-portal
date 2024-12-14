@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthContext } from "@/providers/auth-provider";
 import { Password } from "primereact/password";
+import axios from "axios";
 
 // login box component for login page, used for both standard user and admin login
 const LoginBox = ({ bUseAdmin }: { bUseAdmin?: boolean }) => {
@@ -14,79 +15,61 @@ const LoginBox = ({ bUseAdmin }: { bUseAdmin?: boolean }) => {
   const [error, setError] = useState("");
   const [bIsLoginLoading, setBIsLoginLoading] = useState(false);
   const router = useRouter();
+  const [message, setMessage] = useState("");
 
-  // submit login request to backend
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    // form is used to also handle enter key press
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setBIsLoginLoading(true);
     try {
-      setBIsLoginLoading((prevBIsLoading) => true);
-      const res = await login({ email, password });
-
-      if (res !== true) {
-        setBIsLoginLoading((prevBIsLoading) => false);
-        setError("Invalid credentials. Please try again.");
-        return;
-      }
-
-      if (!bUseAdmin) {
-        router.replace("/event-info");
+      console.log("Sending request to backend with:", { email, password });
+      const response = await axios.post(
+        "http://localhost:3001/api/auth/login",
+        {
+          email,
+          password,
+        }
+      );
+      if (response.data.success) {
+        setMessage("Login successful!");
+        // Redirect to event-info page
+        router.push(response.data.redirectUrl);
       } else {
-        router.replace("/admin/manage-user");
+        setMessage("Invalid email or password");
       }
     } catch (error) {
-      console.error("Error: " + error);
+      setMessage("Eorro. Please try again.");
+    } finally {
+      setBIsLoginLoading(false);
     }
   };
 
   return (
-    <>
-      <div className="flex md:w-2/3 items-center justify-center">
-        <div className="flex flex-col p-12 md:w-[34rem] h-fit custom-shadow-border rounded-[50px]">
-          <p className="text-3xl">Sign in</p>
-          {/* {!bUseAdmin ? <p className="text-xl font-light">to connect with other chads</p> : <p className="text-xl font-light">to access admin panel</p>} */}
-          <hr className="h-px my-10 bg-gray-400" />
-          <form onSubmit={handleSubmit} className="flex flex-col h-full [&>*]:my-2">
-            <p className="text-2xl">Email address</p>
-            <InputText className="custom-shadow-border-light" value={email} onChange={(e) => setEmail(e.target.value)} />
-            {/* <br className='my-2' /> */}
-            <p className="text-2xl">Password</p>
-            <Password
-              className="custom-shadow-border-light [&>*:first-child]:w-full"
-              toggleMask
-              feedback={false}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              pt={{
-                input: { className: "w-full" },
-              }}
-            />
-            {error ? <div className="text-red-600">{error}</div> : <br className="!my-5" />}
-            <div className="flex w-full justify-center">
-              <Button
-                onClick={() => {
-                  setError("");
-                }}
-                className="px-20"
-                label="Continue"
-                loading={bIsLoginLoading}
-              />
-            </div>
-
-            {!bUseAdmin && <br className="!my-5" />}
-
-            {!bUseAdmin && (
-              <div className="font-light">
-                No account?&ensp;
-                <Link href="/signup" className="text-cyan-700 hover:underline">
-                  Sign up
-                </Link>
-              </div>
-            )}
-          </form>
+    <div>
+      <form onSubmit={handleLogin}>
+        <div>
+          <label>Email:</label>
+          <InputText
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
         </div>
-      </div>
-    </>
+        <div>
+          <label>Password:</label>
+          <Password
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
+        <Button type="submit" label="Login" loading={bIsLoginLoading} />
+      </form>
+      {message && <p>{message}</p>}
+      <p>
+        Don't have an account? <Link href="/signup">Sign up</Link>
+      </p>
+    </div>
   );
 };
 

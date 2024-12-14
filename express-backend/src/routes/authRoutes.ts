@@ -1,23 +1,15 @@
-import { Router } from "express";
+import { Router, Express } from "express";
 import { AuthController } from "../controllers/authController";
 
 const router = Router();
 const authController = new AuthController();
 
-interface App {
-  use(path: string, router: Router): void;
-}
-
-interface AuthControllerInterface {
-  verifyUser(req: any, res: any, next: any): void;
-}
-
-export function setAuthRoutes(app: App) {
+export function setAuthRoutes(app: Express) {
+  router.post("/login", (req, res, next) => {
+    authController.verifyUser(req, res, next);
+  });
+  router.post("/signup", (req, res, next) => {
+    authController.signup(req, res, next);
+  });
   app.use("/api/auth", router);
-  router.post(
-    "/login",
-    authController.verifyUser.bind(
-      authController
-    ) as AuthControllerInterface["verifyUser"]
-  );
 }

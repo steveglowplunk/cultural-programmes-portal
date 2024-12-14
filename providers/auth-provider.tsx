@@ -3,7 +3,13 @@
 // import { PersonalUserInfo } from "#/shared/models/user";
 import { login, logout, validateUser } from "@/lib/actions/auth";
 import { getUserInfo } from "@/lib/actions/user";
-import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 
 type PersonalUserInfo = {
   username: string;
@@ -26,7 +32,10 @@ type IAuthContext = {
   user: ValidateUserResponse["user"] | null;
   session: ValidateUserResponse["session"] | null;
   userInfo: PersonalUserInfo | null;
-  login: (props: { email: string; password: string }) => ReturnType<typeof login>;
+  login: (props: {
+    email: string;
+    password: string;
+  }) => ReturnType<typeof login>;
   logout: () => ReturnType<typeof logout>;
   refreshUserInfo: () => Promise<PersonalUserInfo | null>;
   print: () => void;
@@ -40,7 +49,9 @@ const AuthContext = createContext<IAuthContext | null>(null);
 
 export function AuthContextProvider({ children }: AuthContextProviderProps) {
   const [user, setUser] = useState<ValidateUserResponse["user"] | null>(null);
-  const [session, setSession] = useState<ValidateUserResponse["session"] | null>(null);
+  const [session, setSession] = useState<
+    ValidateUserResponse["session"] | null
+  >(null);
   const [userInfo, setUserInfo] = useState<PersonalUserInfo | null>(null);
 
   const refreshUserInfo = useCallback(async () => {
@@ -70,7 +81,12 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
         setSession(sessionobj);
         refreshUserInfo();
       } catch (error) {
-        console.log("Malformed user/session stored keys:", error, user, session);
+        console.log(
+          "Malformed user/session stored keys:",
+          error,
+          user,
+          session
+        );
         localStorage.removeItem(lsUserKey);
         localStorage.removeItem(lsSessionKey);
       }
@@ -78,7 +94,10 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
   }, [refreshUserInfo]);
 
   const loginHandler = async (props: { email: string; password: string }) => {
-    const response = await login({ email: props.email, password: props.password });
+    const response = await login({
+      email: props.email,
+      password: props.password,
+    });
     if (response === true) {
       const validate = await validateUser();
       if (!("error" in validate)) {
