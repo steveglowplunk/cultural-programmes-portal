@@ -43,7 +43,7 @@ export class AuthController {
 
     // Add the new user to the users array
     users.push({ username, email, password });
-    console.log("New user added:", { username, email, password });
+    // console.log("New user added:", { username, email, password });
 
     // Save the updated users array to the file
     const fileContent = `export const users = ${JSON.stringify(

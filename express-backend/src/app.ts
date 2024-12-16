@@ -47,13 +47,13 @@ db.once('open', function () {
         xmlData += chunk;
       });
       res.on('end', async () => {
-        console.log('Fetched XML Data:', xmlData);
+        // console.log('Fetched XML Data:', xmlData);
         const locationsData: { venueId: string; venueName: string; latitude: string; longitude: string }[] = [];
         const venues = xmlData.match(/<venue id=".*?">[\s\S]*?<\/venue>/g);
-        console.log('Matched Venues:', venues);
+        // console.log('Matched Venues:', venues);
         if (venues) {
           venues.forEach((venue: string) => {
-            console.log('Venue Block:', venue);
+            // console.log('Venue Block:', venue);
             const venueIdMatch = venue.match(/<venue id="(.*?)">/);
             const venueNameMatch = venue.match(/<venuee><!\[CDATA\[(.*?)\]\]><\/venuee>/);
             const latitudeMatch = venue.match(/<latitude><!\[CDATA\[(.*?)\]\]><\/latitude>/);
@@ -72,7 +72,7 @@ db.once('open', function () {
                 longitude,
               });
             } else {
-              console.warn('Incomplete venue data:', { venueId, venueName, latitude, longitude });
+              // console.warn('Incomplete venue data:', { venueId, venueName, latitude, longitude });
             }
           });
 
