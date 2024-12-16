@@ -31,7 +31,7 @@ const LoginBox = ({ bUseAdmin }: { bUseAdmin?: boolean }) => {
       if (response.data.success) {
         setMessage("Login successful!");
         // Redirect to event-info page
-        router.push(response.data.redirectUrl);
+        router.push("event-info");
       } else {
         setMessage("Invalid email or password");
       }

@@ -1,36 +1,27 @@
 import { Request, Response, NextFunction } from "express";
-import { fakeUsers } from "../data/fakeUsers"; // this is fake data to modify database
+import { users } from "../data/Users"; // Correctly import the users array
 import * as fs from "fs";
 import path from "path";
-const fakeUsersFilePath = path.join(__dirname, "../data/fakeUsers.ts");
+const usersFilePath = path.join(__dirname, "../data/Users.ts");
 
 export class AuthController {
-  // private fakeUsers = [
-  //   { email: "test@example.com", password: "password123" },
-  //   { email: "user@example.com", password: "mypassword" },
-  // ];
-
-  verifyUser(req: Request, res: Response, next: NextFunction): void {
+  login(req: Request, res: Response, next: NextFunction): void {
     const { email, password } = req.body;
 
-    // 打印用戶傳輸進來的 email 和 password
-    console.log("Received email:", email);
-    console.log("Received password:", password);
-
-    // 查找假用戶數據中是否存在匹配的用戶
-    const user = fakeUsers.find(
+    // Find the user with the matching email and password
+    const user = users.find(
       (user) => user.email === email && user.password === password
     );
 
     if (user) {
-      // 如果找到匹配的用戶，返回成功消息
+      // If a matching user is found, return a success message
       res.status(200).send({
         success: true,
         message: "Login successful",
         redirectUrl: "http://localhost:3000/event-info",
       });
     } else {
-      // 如果沒有找到匹配的用戶，返回錯誤消息
+      // If no matching user is found, return an error message
       res
         .status(401)
         .send({ success: false, message: "Invalid email or password" });
@@ -38,33 +29,50 @@ export class AuthController {
   }
 
   signup(req: Request, res: Response, next: NextFunction): void {
-    const { username, email, password } = req.body; // 確保從請求體中提取 username
+    const { username, email, password } = req.body; // Ensure username is extracted from the request body
 
-    // 檢查是否已經存在相同的 email
-    const existingUser = fakeUsers.find((user) => user.email === email);
+    // Check if a user with the same email already exists
+    const existingUser = users.find((user) => user.email === email);
     if (existingUser) {
       res.status(400).send({
         success: false,
         message: "Email already in use",
       });
-      return; // 確保方法結束
+      return; // Ensure the method ends
     }
 
-    // 添加新用戶到假用戶數據
-    fakeUsers.push({ username, email, password });
+    // Add the new user to the users array
+    users.push({ username, email, password });
     console.log("New user added:", { username, email, password });
 
-    // 將更新後的假用戶數據保存到文件中
-    const fileContent = `export const fakeUsers = ${JSON.stringify(
-      fakeUsers,
+    // Save the updated users array to the file
+    const fileContent = `export const users = ${JSON.stringify(
+      users,
       null,
       2
     )};`;
-    fs.writeFileSync(fakeUsersFilePath, fileContent);
+    fs.writeFileSync(usersFilePath, fileContent);
 
     res.status(201).send({
       success: true,
-      message: "User registered successfully",
+      message: "Signup successful",
     });
+  }
+  verifyUser(req: Request, res: Response, next: NextFunction): void {
+    const { email } = req.body;
+
+    // Check if a user with the same email exists
+    const existingUser = users.find((user) => user.email === email);
+    if (existingUser) {
+      res.status(200).send({
+        success: true,
+        message: "User exists",
+      });
+    } else {
+      res.status(404).send({
+        success: false,
+        message: "User not found",
+      });
+    }
   }
 }
