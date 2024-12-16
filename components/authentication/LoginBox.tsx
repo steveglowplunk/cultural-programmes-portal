@@ -12,7 +12,6 @@ const LoginBox = ({ bUseAdmin }: { bUseAdmin?: boolean }) => {
   const { login } = useAuthContext();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const [bIsLoginLoading, setBIsLoginLoading] = useState(false);
   const router = useRouter();
   const [message, setMessage] = useState("");
@@ -37,39 +36,70 @@ const LoginBox = ({ bUseAdmin }: { bUseAdmin?: boolean }) => {
         setMessage("Invalid email or password");
       }
     } catch (error) {
-      setMessage("Eorro. Please try again.");
+      if (axios.isAxiosError(error)) {
+        if (error.response && error.response.status === 401) {
+          setMessage("Invalid email or password");
+        } else {
+          console.error("Error logging in:", error);
+          setMessage("An unexpected error occurred. Please try again.");
+        }
+      } else {
+        console.error("Unexpected error:", error);
+        setMessage("An unexpected error occurred. Please try again.");
+      }
     } finally {
       setBIsLoginLoading(false);
     }
   };
 
   return (
-    <div>
-      <form onSubmit={handleLogin}>
-        <div>
-          <label>Email:</label>
-          <InputText
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+    <>
+      <div className="flex md:w-2/3 items-center justify-center">
+        <div className="flex flex-col p-12 md:w-[34rem] h-fit custom-shadow-border rounded-[50px]">
+          <p className="text-3xl">Sign in</p>
+          {/* {!bUseAdmin ? <p className="text-xl font-light">to connect with other chads</p> : <p className="text-xl font-light">to access admin panel</p>} */}
+          <hr className="h-px my-10 bg-gray-400" />
+          <form onSubmit={handleLogin} className="flex flex-col h-full [&>*]:my-2">
+            <p className="text-2xl">Email address</p>
+            <InputText className="custom-shadow-border-light" value={email} onChange={(e) => setEmail(e.target.value)} />
+            {/* <br className='my-2' /> */}
+            <p className="text-2xl">Password</p>
+            <Password
+              className="custom-shadow-border-light [&>*:first-child]:w-full"
+              toggleMask
+              feedback={false}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              pt={{
+                input: { className: "w-full" },
+              }}
+            />
+            {message ? <div className="text-red-600">{message}</div> : <br className="!my-5" />}
+            <div className="flex w-full justify-center">
+              <Button
+                onClick={() => {
+                  setMessage("");
+                }}
+                className="px-20"
+                label="Continue"
+                loading={bIsLoginLoading}
+              />
+            </div>
+
+            {!bUseAdmin && <br className="!my-5" />}
+
+            {!bUseAdmin && (
+              <div className="font-light">
+                No account?&ensp;
+                <Link href="/signup" className="text-cyan-700 hover:underline">
+                  Sign up
+                </Link>
+              </div>
+            )}
+          </form>
         </div>
-        <div>
-          <label>Password:</label>
-          <Password
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-        <Button type="submit" label="Login" loading={bIsLoginLoading} />
-      </form>
-      {message && <p>{message}</p>}
-      <p>
-        Don't have an account? <Link href="/signup">Sign up</Link>
-      </p>
-    </div>
+      </div>
+    </>
   );
 };
 
