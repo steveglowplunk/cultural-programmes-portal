@@ -9,11 +9,11 @@ const EventInfo = () => {
     const map = new maplibregl.Map({
       container: 'map',
       style: `https://api.maptiler.com/maps/streets-v2/style.json?key=${key}`,
-      center: [0.11, 51.49],
+      center: [114.222075, 22.285056],
       zoom: 6
     });
     const london = new maplibregl.Marker()
-      .setLngLat([0.11, 51.49])
+      .setLngLat([114.222075, 22.285056])
       .addTo(map);
     map.on('error', function(err) {
       throw new Error("To load the map, you must replace YOUR_MAPTILER_API_KEY_HERE first, see README");
@@ -22,9 +22,7 @@ const EventInfo = () => {
 
   return (
     <>
-      <div className="relative w-3/4 h-3/4 mx-auto my-4 border-4 border-gray-300">
         <div id="map" className="absolute top-0 bottom-0 w-full h-full"></div>
-      </div>
     </>
   );
 };
