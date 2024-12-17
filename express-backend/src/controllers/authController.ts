@@ -1,7 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import { users } from "../data/Users"; // Correctly import the users array
+import { User } from "../models/User"; // Import the User model
 import * as fs from "fs";
 import path from "path";
+import mongoose from "mongoose";
 const usersFilePath = path.join(__dirname, "../data/Users.ts");
 
 export class AuthController {
@@ -28,35 +30,30 @@ export class AuthController {
     }
   }
 
-  signup(req: Request, res: Response, next: NextFunction): void {
+  async signup(req: Request, res: Response, next: NextFunction): Promise<void> {
     const { username, email, password } = req.body; // Ensure username is extracted from the request body
 
-    // Check if a user with the same email already exists
-    const existingUser = users.find((user) => user.email === email);
-    if (existingUser) {
-      res.status(400).send({
-        success: false,
-        message: "Email already in use",
+    try {
+      // Check if a user with the same email already exists
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        res.status(400).send({
+          success: false,
+          message: "Email already in use",
+        });
+        return; // Ensure the method ends here
+      }
+
+      const newUser = new User({ username, email, password });
+      await newUser.save();
+
+      res.status(201).send({
+        success: true,
+        message: "User registered successfully",
       });
-      return; // Ensure the method ends
+    } catch (error) {
+      res.status(500).send({ success: false, message: "Internal server error" });
     }
-
-    // Add the new user to the users array
-    users.push({ username, email, password });
-    // console.log("New user added:", { username, email, password });
-
-    // Save the updated users array to the file
-    const fileContent = `export const users = ${JSON.stringify(
-      users,
-      null,
-      2
-    )};`;
-    fs.writeFileSync(usersFilePath, fileContent);
-
-    res.status(201).send({
-      success: true,
-      message: "Signup successful",
-    });
   }
   verifyUser(req: Request, res: Response, next: NextFunction): void {
     const { email } = req.body;

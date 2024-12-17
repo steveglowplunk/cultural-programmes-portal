@@ -6,12 +6,13 @@ import https from "https";
 
 import { setAdminRoutes } from "./routes/adminRoutes"; // Import admin routes
 import { setAuthRoutes } from "./routes/authRoutes";
+import { setCommentRoutes } from './routes/commentRoutes';
+import { setUserRoutes } from './routes/userRoutes';
 import { User } from "./models/User";
 import { Admin } from "./models/Admin";
 import { Location } from "./models/Location";
 import { Event } from "./models/Event";
 import { users } from "./data/Users";
-import { setCommentRoutes } from './routes/commentRoutes';
 
 const app = express();
 const PORT = 3001;
@@ -423,6 +424,7 @@ db.once('open', function () {
   setAuthRoutes(app);
   setAdminRoutes(app); // Set up admin routes
   setCommentRoutes(app); // Set up comment routes
+  setUserRoutes(app); // Set up user routes
   //searchLocationByKeyword("Kowloon");
 
   app.listen(PORT, () => {
