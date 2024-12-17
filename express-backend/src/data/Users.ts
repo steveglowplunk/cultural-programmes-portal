@@ -86,4 +86,11 @@ export const users = [
     favouriteVenues: [],
     role: "normal",
   },
+  {
+    username: "I am become death destroyer of world",
+    email: "nuclear@bomb.com",
+    password: "1234TAT",
+    favouriteLocations: [],
+    role: "admin",
+  }
 ];

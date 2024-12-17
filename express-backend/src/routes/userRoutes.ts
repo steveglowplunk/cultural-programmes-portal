@@ -14,8 +14,7 @@ router.get('/locations/search', asyncHandler(userController.searchLocationByKeyw
 router.get('/locations/top10', asyncHandler(userController.fetch10UniqueLocationsWith3Events));
 router.get('/locations/more-than-3-events-asc', asyncHandler(userController.fetchLocationsWithEventsAsc));
 router.get('/locations/more-than-3-events-desc', asyncHandler(userController.fetchLocationsWithEventsDesc));
-router.post('/users/:username/favourite-venues', userController.updateUserFavouriteVenues);
-
+router.post('/users/:username/favourite-venues', asyncHandler(userController.updateUserFavouriteVenues));
 
 export const setUserRoutes = (app: express.Application) => {
   app.use('/api', router);
