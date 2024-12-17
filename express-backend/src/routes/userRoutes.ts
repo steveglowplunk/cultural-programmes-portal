@@ -11,9 +11,11 @@ router.get('/event-categories', asyncHandler(userController.getAllEventCategorie
 router.get('/locations/distance', asyncHandler(userController.filterLocationWithDistance));
 router.get('/locations/category', asyncHandler(userController.filterLocationsByEventCategory));
 router.get('/locations/search', asyncHandler(userController.searchLocationByKeyword));
-router.get('/locations/top10', asyncHandler(userController.fetch10LocationsWith3Events));
-router.get('/locations/more-than-3-events-asc', asyncHandler(userController.listLocationsWithMoreThan3EventsAscendingOrder));
-router.get('/locations/more-than-3-events-desc', asyncHandler(userController.listLocationsWithMoreThan3EventsDescendingOrder));
+router.get('/locations/top10', asyncHandler(userController.fetch10UniqueLocationsWith3Events));
+router.get('/locations/more-than-3-events-asc', asyncHandler(userController.fetchLocationsWithEventsAsc));
+router.get('/locations/more-than-3-events-desc', asyncHandler(userController.fetchLocationsWithEventsDesc));
+router.post('/users/:username/favourite-venues', userController.updateUserFavouriteVenues);
+
 
 export const setUserRoutes = (app: express.Application) => {
   app.use('/api', router);

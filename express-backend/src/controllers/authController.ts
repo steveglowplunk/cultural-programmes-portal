@@ -1,3 +1,4 @@
+
 import { Request, Response, NextFunction } from "express";
 import { users } from "../data/Users"; // Correctly import the users arr
 import { User, IUser } from "../models/User";
@@ -69,7 +70,7 @@ export class AuthController {
       await newUser.save();
 
       // 更新本地文件
-      users.push({ username, email, password, favouriteLocations: [], role });
+      users.push({ username, email, password, favouriteVenues: [], role });
       const fileContent = `export const users = ${JSON.stringify(
         users,
         null,
