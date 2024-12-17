@@ -17,6 +17,8 @@ const LoginBox = ({ bUseAdmin }: { bUseAdmin?: boolean }) => {
   const [message, setMessage] = useState("");
 
   const handleLogin = async (e: React.FormEvent) => {
+    setMessage("");
+
     e.preventDefault();
     setBIsLoginLoading(true);
     try {
@@ -30,8 +32,10 @@ const LoginBox = ({ bUseAdmin }: { bUseAdmin?: boolean }) => {
       );
       if (response.data.success) {
         setMessage("Login successful!");
+        localStorage.setItem("token", response.data.token); // 存儲 JWT
         // Redirect to event-info page
-        router.push("event-info");
+        console.log("Redirecting to event-info page");
+        router.push("/event-info");
       } else {
         setMessage("Invalid email or password");
       }
@@ -59,9 +63,16 @@ const LoginBox = ({ bUseAdmin }: { bUseAdmin?: boolean }) => {
           <p className="text-3xl">Sign in</p>
           {/* {!bUseAdmin ? <p className="text-xl font-light">to connect with other chads</p> : <p className="text-xl font-light">to access admin panel</p>} */}
           <hr className="h-px my-10 bg-gray-400" />
-          <form onSubmit={handleLogin} className="flex flex-col h-full [&>*]:my-2">
+          <form
+            onSubmit={handleLogin}
+            className="flex flex-col h-full [&>*]:my-2"
+          >
             <p className="text-2xl">Email address</p>
-            <InputText className="custom-shadow-border-light" value={email} onChange={(e) => setEmail(e.target.value)} />
+            <InputText
+              className="custom-shadow-border-light"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
             {/* <br className='my-2' /> */}
             <p className="text-2xl">Password</p>
             <Password
@@ -74,7 +85,11 @@ const LoginBox = ({ bUseAdmin }: { bUseAdmin?: boolean }) => {
                 input: { className: "w-full" },
               }}
             />
-            {message ? <div className="text-red-600">{message}</div> : <br className="!my-5" />}
+            {message ? (
+              <div className="text-red-600">{message}</div>
+            ) : (
+              <br className="!my-5" />
+            )}
             <div className="flex w-full justify-center">
               <Button
                 onClick={() => {

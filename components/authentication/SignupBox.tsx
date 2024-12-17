@@ -43,8 +43,9 @@ const SignupBox = () => {
       if (response.data.success) {
         setError("User registered successfully!");
         // Redirect to login page or other page
-        router.push("/login");
-      } else {
+        router.push("event-info");
+      } else if (response.status === 401) {
+        console.log(response.data.message);
         setError(response.data.message);
       }
     } catch (error) {

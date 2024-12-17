@@ -1,32 +1,58 @@
 export const users = [
-    {
-      "username": "testuser1",
-      "email": "testuser1@example.com",
-      "password": "password123"
-    },
-    {
-      "username": "testuser2",
-      "email": "testuser2@example.com",
-      "password": "mypassword"
-    },
-    {
-      "username": "testuser3",
-      "email": "testuser3@example.com",
-      "password": "securepass"
-    },
-    {
-      "username": "testuser4",
-      "email": "testuser4@example.com",
-      "password": "letmein"
-    },
-    {
-      "username": "testuser5",
-      "email": "testuser5@example.com",
-      "password": "12345678"
-    },
-    {
-      "username": "testuser6",
-      "email": "testuser6@example.com",
-      "password": "193678"
-    }
-  ];
+  {
+    username: "testuser1",
+    email: "testuser1@example.com",
+    password: "password123",
+    favouriteLocations: [],
+    role: "normal",
+  },
+  {
+    username: "testuser2",
+    email: "testuser2@example.com",
+    password: "mypassword",
+    favouriteLocations: [],
+    role: "normal",
+  },
+  {
+    username: "testuser3",
+    email: "testuser3@example.com",
+    password: "securepass",
+    favouriteLocations: [],
+    role: "normal",
+  },
+  {
+    username: "testuser4",
+    email: "testuser4@example.com",
+    password: "letmein",
+    favouriteLocations: [],
+    role: "normal",
+  },
+  {
+    username: "testuser5",
+    email: "testuser5@example.com",
+    password: "12345678",
+    favouriteLocations: [],
+    role: "admin",
+  },
+  {
+    username: "testuser6",
+    email: "testuser6@example.com",
+    password: "193678",
+    favouriteLocations: [],
+    role: "admin",
+  },
+  {
+    username: "user7",
+    email: "user7@example.com",
+    password: "qwertyuiop",
+    favouriteLocations: [],
+    role: "normal",
+  },
+  {
+    username: "testuser8",
+    email: "testuser8@example.com",
+    password: "zxcvbnm",
+    favouriteLocations: [],
+    role: "normal",
+  },
+];
