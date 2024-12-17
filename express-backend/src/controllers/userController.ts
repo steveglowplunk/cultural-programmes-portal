@@ -15,6 +15,18 @@ export class UserController {
     }
   }
 
+  async getEventByVenueId(req: Request, res: Response) {
+    try {
+      const event = await Event.find({ venueId: req.params.venueId });
+      if (!event) {
+        return res.status(404).send();
+      }
+      res.status(200).send(event);
+    } catch (error) {
+      res.status(500).send(error);
+    }
+  }
+
   async getAllEventCategories(req: Request, res: Response) {
     try {
       const categories = await Event.distinct('category');
@@ -57,12 +69,16 @@ export class UserController {
         },
         {
           $match: {
-            'events.category': category,
+            'events.cat1': category,
           },
         },
       ]);
+
+      console.log('Filtered Locations:', locations); // Log the result
+
       res.status(200).send(locations);
     } catch (error) {
+      console.error('Error:', error); // Log the error
       res.status(500).send(error);
     }
   }

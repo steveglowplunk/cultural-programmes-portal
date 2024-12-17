@@ -21,7 +21,11 @@ const LocationItem = (option: Location) => {
                     onClick={handleToggle}
                 />
             </div>
-            {option.isSelected && <button className='hover:underline space-x-2'>
+            <p>
+                <span className='font-bold'>No. of events: </span> {option.eventCount}
+            </p>
+            {option.isSelected && <button className='hover:underline space-x-2'
+                onClick={() => option.onShowDetails(option)}>
                 <span>Show details</span>
                 <i className='pi pi-arrow-right'></i>
             </button>}
