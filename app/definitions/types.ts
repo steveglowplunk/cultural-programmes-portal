@@ -38,4 +38,5 @@ export interface Event {
     video2Link: string;
     submitDate: string;
     __v: number;
+    isSelected: boolean;
   }
