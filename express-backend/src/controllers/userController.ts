@@ -12,7 +12,7 @@ const usersFilePath = path.join(__dirname, 'data', 'Users.ts');
 export class UserController {
   async getEvent(req: Request, res: Response) {
     try {
-      const event = await Event.findById(req.params.id);
+      const event = await Event.find({eventId:req.params.id});
       if (!event) {
         return res.status(404).send();
       }
@@ -36,7 +36,7 @@ export class UserController {
 
   async getAllEventCategories(req: Request, res: Response) {
     try {
-      const categories = await Event.distinct('category');
+      const categories = await Event.distinct('cat2');
       res.status(200).send(categories);
     } catch (error) {
       res.status(500).send(error);
@@ -71,22 +71,29 @@ export class UserController {
             from: 'events',
             localField: 'venueId',
             foreignField: 'venueId',
-            as: 'events',
-          },
+            as: 'events'
+          }
         },
         {
           $match: {
-            'events.cat1': category,
-          },
+            'events.cat2': category
+          }
         },
+        {
+          $project: {
+            _id: 0,
+            venueId: 1,
+            venueName: 1,
+            cat1: 1,
+            events: 1
+          }
+        }
       ]);
-
-      console.log('Filtered Locations:', locations); // Log the result
-
+      console.log('Locations with events in category:', category, locations);
       res.status(200).send(locations);
-    } catch (error) {
-      console.error('Error:', error); // Log the error
-      res.status(500).send(error);
+    } catch (err) {
+      console.error('Error filtering locations by event category:', err);
+      res.status(500).send(err);
     }
   }
 
@@ -94,16 +101,17 @@ export class UserController {
     const { keyword } = req.query;
     try {
       const locations = await Location.find({
-        $text: { $search: keyword as string },
+        venueName: { $regex: keyword as string, $options: 'i' }
       });
+      console.log('Locations matching keyword:', locations);
       res.status(200).send(locations);
     } catch (error) {
+      console.error('Error searching locations by keyword:', error);
       res.status(500).send(error);
     }
   }
 
-  async fetch10UniqueLocationsWith3Events(req: Request, res: Response) {
-    console.log("inside fetch");
+  async fetchLocationsWithEvents(req: Request, res: Response) {
     try {
       const locations = await Location.aggregate([
         {
@@ -122,8 +130,13 @@ export class UserController {
           }
         },
         {
-          $addFields: {
-            eventCount: { $size: "$events" }
+          $group: {
+            _id: { latitude: "$latitude", longitude: "$longitude" },
+            venueId: { $first: "$venueId" },
+            venueName: { $first: "$venueName" },
+            latitude: { $first: "$latitude" },
+            longitude: { $first: "$longitude" },
+            events: { $first: "$events" }
           }
         },
         {
@@ -132,22 +145,19 @@ export class UserController {
             venueName: 1,
             latitude: 1,
             longitude: 1,
-            eventCount: 1,
-            events: { $slice: ['$events', 3] }
+            eventsCount: { $size: "$events" }
           }
         },
         { $limit: 10 }
       ]);
-
-      console.log('Unique locations with 3 or more events and non-empty latitude/longitude:', locations);
+      console.log('Locations with events in ascending order:', locations);
       res.status(200).send(locations);
     } catch (err) {
       console.error('Error fetching locations:', err);
-      res.status(500).json({ error: 'An error occurred while fetching locations' });
+      res.status(500).send(err);
     }
   }
-
-  async fetchLocationsWithEventsAsc() {
+  async fetchLocationsWithEventsAsc(req: Request, res: Response) {
     try {
       const locations = await Location.aggregate([
         {
@@ -184,15 +194,18 @@ export class UserController {
             eventsCount: { $size: "$events" }
           }
         },
-        { $sort: { eventsCount: 1 } }
+        { $sort: { eventsCount: 1 } },
+        { $limit: 10 }
       ]);
       console.log('Locations with events in ascending order:', locations);
+      res.status(200).send(locations);
     } catch (err) {
       console.error('Error fetching locations:', err);
+      res.status(500).send(err);
     }
   }
 
-  async fetchLocationsWithEventsDesc() {
+  async fetchLocationsWithEventsDesc(req: Request, res: Response) {
     try {
       const locations = await Location.aggregate([
         {
@@ -229,11 +242,14 @@ export class UserController {
             eventsCount: { $size: "$events" }
           }
         },
-        { $sort: { eventsCount: -1 } }
+        { $sort: { eventsCount: -1 } },
+        { $limit: 10 }
       ]);
       console.log('Locations with events in descending order:', locations);
+      res.status(200).send(locations);
     } catch (err) {
       console.error('Error fetching locations:', err);
+      res.status(500).send(err);
     }
   }
 
@@ -287,21 +303,36 @@ export class UserController {
       return res.status(500).send({ success: false, message: 'Internal server error' });
     }
   }
-
-  async likeEvent(req: Request, res: Response) {
-    const { eventId } = req.body;
+  async getFavouriteVenues(req: Request, res: Response) {
+    const { username } = req.params;
     try {
-      const event = await Event.findById(eventId);
-      if (!event) {
-        return res.status(404).send('Event not found');
+      const user = await User.findOne({ username: username });
+      if (user) {
+        console.log('Favourite venues for user', username, ':', user.favouriteVenues);
+        res.status(200).send(user.favouriteVenues);
+      } else {
+        console.log('User not found');
+        res.status(404).send({ success: false, message: 'User not found' });
       }
-
-      event.likeCount += 1;
-      await event.save();
-
-      res.status(200).send('Event liked successfully');
-    } catch (error) {
-      res.status(500).send(error);
+    } catch (err) {
+      console.error('Error fetching favourite venues:', err);
+      res.status(500).send({ success: false, message: 'Internal server error' });
     }
   }
+  // async likeEvent(req: Request, res: Response) {
+  //   const { eventId } = req.body;
+  //   try {
+  //     const event = await Event.findById(eventId);
+  //     if (!event) {
+  //       return res.status(404).send('Event not found');
+  //     }
+
+  //     event.likeCount += 1;
+  //     await event.save();
+
+  //     res.status(200).send('Event liked successfully');
+  //   } catch (error) {
+  //     res.status(500).send(error);
+  //   }
+  // }
 }
