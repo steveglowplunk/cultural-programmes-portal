@@ -57,12 +57,16 @@ export class UserController {
         },
         {
           $match: {
-            'events.category': category,
+            'events.cat1': category,
           },
         },
       ]);
+
+      console.log('Filtered Locations:', locations); // Log the result
+
       res.status(200).send(locations);
     } catch (error) {
+      console.error('Error:', error); // Log the error
       res.status(500).send(error);
     }
   }
