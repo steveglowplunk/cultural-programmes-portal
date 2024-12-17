@@ -6,6 +6,7 @@ const router = express.Router();
 const userController = new UserController();
 
 router.get('/event/:id', asyncHandler(userController.getEvent));
+router.get('/event/venue/:venueId', asyncHandler(userController.getEventByVenueId));
 router.get('/event-categories', asyncHandler(userController.getAllEventCategories));
 router.get('/locations/distance', asyncHandler(userController.filterLocationWithDistance));
 router.get('/locations/category', asyncHandler(userController.filterLocationsByEventCategory));

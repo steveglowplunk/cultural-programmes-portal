@@ -35,7 +35,7 @@ const EventInfo = () => {
   const [page, setPage] = useState<SideBarPage>(SideBarPage.VenueList);
 
   useEffect(() => {
-    const fetchEvents = async () => {
+    const fetchVenues = async () => {
       try {
         await axios.get(process.env.NEXT_PUBLIC_BACKEND_URL + "/api/locations/top10").then((res) => {
           const locationsWithSelection = res.data.map((location: Location) => ({
@@ -50,7 +50,7 @@ const EventInfo = () => {
       }
     };
 
-    fetchEvents();
+    fetchVenues();
   }, []);
 
   const sortedLocations = useMemo(() => {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Location } from "@/app/definitions/types";
+import { Location, Event } from "@/app/definitions/types";
 
 interface LocationDetailsPanelProps {
     onBack: () => void;
@@ -37,7 +37,8 @@ const LocationDetailsPanel = ({ onBack, location }: LocationDetailsPanelProps) =
                     <span className="font-bold text-black">Number of Events: </span>
                     {location.eventCount}
                 </p>
-                {/* Add more details as needed */}
+                <hr className="border-gray-300 my-2 mr-4" />
+                <p className="font-bold text-lg">Events</p>
             </div>
         </div>
     );
