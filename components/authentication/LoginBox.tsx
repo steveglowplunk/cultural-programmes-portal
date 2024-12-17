@@ -33,9 +33,10 @@ const LoginBox = ({ bUseAdmin }: { bUseAdmin?: boolean }) => {
       if (response.data.success) {
         setMessage("Login successful!");
         localStorage.setItem("token", response.data.token); // 存儲 JWT
-        // Redirect to event-info page
-        console.log("Redirecting to event-info page");
-        router.push("/event-info");
+        // redirect based on role
+        const redirectUrl = response.data.redirectUrl;
+        console.log("Redirecting to:", redirectUrl);
+        router.push(redirectUrl);
       } else {
         setMessage("Invalid email or password");
       }

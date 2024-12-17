@@ -45,9 +45,9 @@ export function setAuthRoutes(app: Express) {
     }
   );
 
-  // 保護 /admin-manage 路由，只有 admin 用戶可以訪問
+  // 保護 /admin 路由，只有 admin 用戶可以訪問
   router.get(
-    "/admin-manage",
+    "/admin",
     authenticate as any,
     authorize(["admin"]),
     (req: Request, res: Response) => {

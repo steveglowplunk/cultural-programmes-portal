@@ -24,13 +24,14 @@ export class AuthController {
           { expiresIn: "1h" }
         );
         console.log("Generated Token:", token); // 打印生成的 JWT
+        console.log("User role:", user.role); // 打印用戶角色
         res.status(200).send({
           success: true,
           message: "Login successful",
           token,
           redirectUrl:
             user.role === "admin"
-              ? "http://localhost:3000/admin-manage"
+              ? "http://localhost:3000/admin"
               : "http://localhost:3000/event-info", // 根據角色設置重定向 URL
         });
       } else {

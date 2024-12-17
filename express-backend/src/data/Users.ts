@@ -55,4 +55,11 @@ export const users = [
     favouriteLocations: [],
     role: "normal",
   },
+  {
+    username: "13223121",
+    email: "41223r1@vfds.com",
+    password: "123456",
+    favouriteLocations: [],
+    role: "normal",
+  },
 ];

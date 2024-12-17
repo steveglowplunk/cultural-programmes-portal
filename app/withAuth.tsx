@@ -39,7 +39,7 @@ const withAuth = (
         if (decodedToken.exp < currentTime) {
           console.log("Token expired, redirecting to login page");
           localStorage.removeItem("token");
-          router.push("/login");
+          router.push("/");
           return;
         }
 
