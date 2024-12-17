@@ -17,7 +17,7 @@ const locationSchema = new mongoose.Schema({
   longitude: {
     type: String,
     required: true,
-  },
+  }
 });
 
 export const Location = mongoose.model('Location', locationSchema);

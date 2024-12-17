@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { number } from 'zod';
 
 const eventSchema = new mongoose.Schema({
   eventId: { type: String, default: '' },
@@ -27,6 +28,7 @@ const eventSchema = new mongoose.Schema({
   videoLink: { type: String, default: '' },
   video2Link: { type: String, default: '' },
   submitDate: { type: String, default: '' },
+  likeCount: { type: Number, default: 0 },
 });
 
 export const Event = mongoose.model('Event', eventSchema);

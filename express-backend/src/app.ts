@@ -3,6 +3,9 @@ import bodyParser from "body-parser";
 import cors from "cors"; // 引入 cors 中間件
 import mongoose from "mongoose";
 import https from "https";
+import path from "path";
+import fs from "fs";
+const usersFilePath = path.join(__dirname, "./data/Users.ts");
 
 import { setAdminRoutes } from "./routes/adminRoutes"; // Import admin routes
 import { setAuthRoutes } from "./routes/authRoutes";
@@ -41,7 +44,7 @@ db.once('open', function () {
   // Fetch and store location data
   async function fetchAndStoreLocationData() {
     const url = 'https://www.lcsd.gov.hk/datagovhk/event/venues.xml';
-    console.log('Fetching location data from:', url);
+    //console.log('Fetching location data from:', url);
     https.get(url, (res: any) => {
       let xmlData = '';
       res.on('data', (chunk: any) => {
@@ -129,6 +132,7 @@ db.once('open', function () {
             videoLink: string;
             video2Link: string;
             submitDate: string;
+            likeCount: number;
           }[] = [];
           const events = xmlData.match(/<event id=".*?">[\s\S]*?<\/event>/g);
           if (events) {
@@ -186,6 +190,7 @@ db.once('open', function () {
               const videoLink = videoLinkMatch ? videoLinkMatch[1] : '';
               const video2Link = video2LinkMatch ? video2LinkMatch[1] : '';
               const submitDate = submitDateMatch ? submitDateMatch[1] : '';
+              const likeCount = 0;
 
               eventsData.push({
                 eventId,
@@ -213,7 +218,8 @@ db.once('open', function () {
                 detailImage5,
                 videoLink,
                 video2Link,
-                submitDate
+                submitDate,
+                likeCount
               });
             }
 
@@ -232,76 +238,8 @@ db.once('open', function () {
       console.error('Error fetching data:', err);
     });
   }
-  async function listLocationsWithMoreThan3EventsDescendingOrder() {
-    try {
-      const locations = await Location.aggregate([
-        {
-          $lookup: {
-            from: 'events',
-            localField: 'venueId',
-            foreignField: 'venueId',
-            as: 'events'
-          }
-        },
-        {
-          $project: {
-            venueId: 1,
-            venueName: 1,
-            latitude: 1,
-            longitude: 1,
-            eventCount: { $size: '$events' }
-          }
-        },
-        {
-          $match: {
-            eventCount: { $gt: 3 }
-          }
-        },
-        {
-          $sort: { eventCount: -1 } // Sort by event count in descending order
-        }
-      ]);
-      console.log('Locations with more than 3 events:', locations);
-    } catch (err) {
-      console.error('Error listing locations with more than 3 events:', err);
-    }
-  }
-
-  async function listLocationsWithMoreThan3EventsAscendingOrder() {
-    try {
-      const locations = await Location.aggregate([
-        {
-          $lookup: {
-            from: 'events',
-            localField: 'venueId',
-            foreignField: 'venueId',
-            as: 'events'
-          }
-        },
-        {
-          $project: {
-            venueId: 1,
-            venueName: 1,
-            latitude: 1,
-            longitude: 1,
-            eventCount: { $size: '$events' }
-          }
-        },
-        {
-          $match: {
-            eventCount: { $gt: 3 }
-          }
-        },
-        {
-          $sort: { eventCount: 1 } // Sort by event count in ascending order
-        }
-      ]);
-      console.log('Locations with more than 3 events (ascending order):', locations);
-    } catch (err) {
-      console.error('Error listing locations with more than 3 events:', err);
-    }
-  }
-  async function fetch10LocationsWith3Events() {
+  
+  async function fetch10UniqueLocationsWith3Events() {
     console.log("inside fetch");
     try {
       const locations = await Location.aggregate([
@@ -321,6 +259,16 @@ db.once('open', function () {
           }
         },
         {
+          $group: {
+            _id: { latitude: "$latitude", longitude: "$longitude" },
+            venueId: { $first: "$venueId" },
+            venueName: { $first: "$venueName" },
+            latitude: { $first: "$latitude" },
+            longitude: { $first: "$longitude" },
+            events: { $first: "$events" }
+          }
+        },
+        {
           $project: {
             venueId: 1,
             venueName: 1,
@@ -331,12 +279,103 @@ db.once('open', function () {
         },
         { $limit: 10 }
       ]);
-      console.log('Locations with 3 or more events and non-empty latitude/longitude:', locations);
+      console.log('Unique locations with 3 or more events and non-empty latitude/longitude:', locations);
     } catch (err) {
       console.error('Error fetching locations:', err);
     }
   }
 
+  async function fetchLocationsWithEventsAsc() {
+    try {
+      const locations = await Location.aggregate([
+        {
+          $lookup: {
+            from: 'events',
+            localField: 'venueId',
+            foreignField: 'venueId',
+            as: 'events'
+          }
+        },
+        {
+          $match: {
+            'events.3': { $exists: true },
+            latitude: { $ne: '' },
+            longitude: { $ne: '' }
+          }
+        },
+        {
+          $group: {
+            _id: { latitude: "$latitude", longitude: "$longitude" },
+            venueId: { $first: "$venueId" },
+            venueName: { $first: "$venueName" },
+            latitude: { $first: "$latitude" },
+            longitude: { $first: "$longitude" },
+            events: { $first: "$events" }
+          }
+        },
+        {
+          $project: {
+            venueId: 1,
+            venueName: 1,
+            latitude: 1,
+            longitude: 1,
+            eventsCount: { $size: "$events" }
+          }
+        },
+        { $sort: { eventsCount: 1 } },
+        {$limit: 10}
+      ]);
+      console.log('Locations with events in ascending order:', locations);
+    } catch (err) {
+      console.error('Error fetching locations:', err);
+    }
+  }
+
+  async function fetchLocationsWithEventsDesc() {
+    try {
+      const locations = await Location.aggregate([
+        {
+          $lookup: {
+            from: 'events',
+            localField: 'venueId',
+            foreignField: 'venueId',
+            as: 'events'
+          }
+        },
+        {
+          $match: {
+            'events.3': { $exists: true },
+            latitude: { $ne: '' },
+            longitude: { $ne: '' }
+          }
+        },
+        {
+          $group: {
+            _id: { latitude: "$latitude", longitude: "$longitude" },
+            venueId: { $first: "$venueId" },
+            venueName: { $first: "$venueName" },
+            latitude: { $first: "$latitude" },
+            longitude: { $first: "$longitude" },
+            events: { $first: "$events" }
+          }
+        },
+        {
+          $project: {
+            venueId: 1,
+            venueName: 1,
+            latitude: 1,
+            longitude: 1,
+            eventsCount: { $size: "$events" }
+          }
+        },
+        { $sort: { eventsCount: -1 } },
+        {$limit: 10}
+      ]);
+      console.log('Locations with events in descending order:', locations);
+    } catch (err) {
+      console.error('Error fetching locations:', err);
+    }
+  }
   async function searchLocationByKeyword(keyword: string) {
     try {
       const locations = await Location.find({ venueName: { $regex: keyword, $options: 'i' } });
@@ -412,6 +451,21 @@ db.once('open', function () {
       console.error('Error fetching event and location details:', err);
     }
   }
+  async function likeEvent(eventId: string) {
+    try {
+      const result = await Event.updateOne(
+        { eventId: eventId },
+        { $inc: { likeCount: 1 } }
+      );
+      if (result.modifiedCount === 0) {
+        console.log('Event not found or likeCount not updated');
+      } else {
+        console.log('Event liked successfully', result);
+      }
+    } catch (error) {
+      console.log('Error:', error);
+    }
+  }
 
   async function fetchData() {
     await insertUserData();
@@ -419,13 +473,94 @@ db.once('open', function () {
     await fetchAndStoreEventData();
     //await fetch10LocationsWith3Events();
   }
+
+  // async function updateEventTitle(eventId: string, newTitle: string) {
+  //   try {
+  //     const result = await Event.updateOne(
+  //       { eventId: eventId },
+  //       { $set: { titleE: newTitle } }
+  //     );
+  //     if (result.modifiedCount === 0) {
+  //       console.log('Event not found or titleE not updated');
+  //     } else {
+  //       console.log('Event title updated successfully');
+  //     }
+  //   } catch (error) {
+  //     console.log('Error:', error);
+  //   }
+  // }
+
+
+
+  async function updateUserFavouriteVenues(username: string, venueId: string) {
+    try {
+      // Check if the user exists
+      const userExists = await User.findOne({ username: username });
+      if (!userExists) {
+        console.log(`User with username ${username} does not exist`);
+        return;
+      }
+  
+      // Check if the venueId is already in favouriteVenues
+      if (userExists.favouriteVenues.includes(venueId)) {
+        console.log(`VenueId ${venueId} is already in the favouriteVenues array for user ${username}`);
+        return;
+      }
+  
+      const result = await User.updateOne(
+        { username: username },
+        { $addToSet: { favouriteVenues: venueId } }
+      );
+  
+      if (result.modifiedCount === 0) {
+        console.log('User not found or favouriteVenues not updated');
+      } else {
+        console.log('User favouriteVenues updated successfully');
+        
+        // Fetch the updated user data
+        const updatedUser = await User.findOne({ username: username });
+        if (updatedUser) {
+          // Find the index of the user in the users array
+          const userIndex = users.findIndex(user => user.username === username);
+          console.log('User index:', userIndex);
+          if (userIndex !== -1) {
+            // Update the user's favouriteVenues in the users array
+            users[userIndex].favouriteVenues.push(venueId); // Ensure favouriteVenues is an array of strings
+            // Write the updated user data to the file
+            fs.writeFileSync(usersFilePath, `export const users = ${JSON.stringify(users, null, 2)};`);
+            console.log('Updated user data written to file');
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Error updating user favourite venues:', err);
+    }
+  }
+
+  async function call(){
+    await updateUserFavouriteVenues("admin", "3110565");
+    await updateUserFavouriteVenues("admin", "3110267");
+  }
+
+  // updateEventTitle("166329","yes");
+
   console.log("Fetching and storing data...");
+  call();
   fetchData(); // Call the function to fetch and store data
   setAuthRoutes(app);
   setAdminRoutes(app); // Set up admin routes
   setCommentRoutes(app); // Set up comment routes
   setUserRoutes(app); // Set up user routes
+  // getAllEventCategories().then(categories => {
+  //   console.log(categories);
+  // }).catch(err => {
+  //   console.error('Error:', err);
+  // });
+  //getEvent("50110016");
+  //likeEvent("166357");
   //searchLocationByKeyword("Kowloon");
+
+
 
   app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);

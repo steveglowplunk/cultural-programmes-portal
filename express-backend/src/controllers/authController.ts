@@ -1,75 +1,127 @@
+
 import { Request, Response, NextFunction } from "express";
-import { users } from "../data/Users"; // Correctly import the users array
-import { User } from "../models/User"; // Import the User model
+import { users } from "../data/Users"; // Correctly import the users arr
+import { User, IUser } from "../models/User";
 import * as fs from "fs";
 import path from "path";
-import mongoose from "mongoose";
 const usersFilePath = path.join(__dirname, "../data/Users.ts");
+import jwt from "jsonwebtoken";
+
+const SECRET_KEY = "your_secret_key";
 
 export class AuthController {
-  login(req: Request, res: Response, next: NextFunction): void {
+  async login(req: Request, res: Response, next: NextFunction): Promise<void> {
     const { email, password } = req.body;
 
-    // Find the user with the matching email and password
-    const user = users.find(
-      (user) => user.email === email && user.password === password
-    );
+    try {
+      const user: IUser | null = await User.findOne({ email, password });
 
-    if (user) {
-      // If a matching user is found, return a success message
-      res.status(200).send({
-        success: true,
-        message: "Login successful",
-        redirectUrl: "http://localhost:3000/event-info",
+      console.log("There is before check user");
+
+      if (user) {
+        const token = jwt.sign(
+          { id: user._id, email: user.email, role: user.role }, // 包含角色信息
+          SECRET_KEY,
+          { expiresIn: "1h" }
+        );
+        console.log("Generated Token:", token); // 打印生成的 JWT
+        res.status(200).send({
+          success: true,
+          message: "Login successful",
+          token,
+          redirectUrl:
+            user.role === "admin"
+              ? "http://localhost:3000/admin-manage"
+              : "http://localhost:3000/event-info", // 根據角色設置重定向 URL
+        });
+      } else {
+        res
+          .status(401)
+          .send({ success: false, message: "Invalid email or password" });
+      }
+    } catch (error) {
+      res.status(500).send({
+        success: false,
+        message: "An unexpected error occurred. Please try again.",
       });
-    } else {
-      // If no matching user is found, return an error message
-      res
-        .status(401)
-        .send({ success: false, message: "Invalid email or password" });
+      next(error);
     }
   }
 
   async signup(req: Request, res: Response, next: NextFunction): Promise<void> {
-    const { username, email, password } = req.body; // Ensure username is extracted from the request body
+    const { username, email, password, role = "normal" } = req.body;
 
     try {
-      // Check if a user with the same email already exists
-      const existingUser = await User.findOne({ email });
+      // 檢查是否已經存在相同的 email 或 username
+      const existingUser = await User.findOne({
+        $or: [{ email }, { username }],
+      });
       if (existingUser) {
         res.status(400).send({
           success: false,
-          message: "Email already in use",
+          message: "Email or username already in use",
         });
-        return; // Ensure the method ends here
+        return;
       }
 
-      const newUser = new User({ username, email, password });
+      // 創建新用戶並保存到 MongoDB
+      const newUser: IUser = new User({ username, email, password, role });
       await newUser.save();
+
+      // 更新本地文件
+      users.push({ username, email, password, favouriteVenues: [], role });
+      const fileContent = `export const users = ${JSON.stringify(
+        users,
+        null,
+        2
+      )};`;
+      fs.writeFileSync(usersFilePath, fileContent);
 
       res.status(201).send({
         success: true,
-        message: "User registered successfully",
+        message: "Signup successful",
       });
     } catch (error) {
-      res.status(500).send({ success: false, message: "Internal server error" });
+      res.status(500).send({
+        success: false,
+        message: "An error occurred. Please try again.",
+      });
+      next(error);
     }
   }
-  verifyUser(req: Request, res: Response, next: NextFunction): void {
+
+  async verifyUser(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     const { email } = req.body;
 
-    // Check if a user with the same email exists
-    const existingUser = users.find((user) => user.email === email);
-    if (existingUser) {
-      res.status(200).send({
-        success: true,
-        message: "User exists",
-      });
-    } else {
-      res.status(404).send({
+    try {
+      // 從 MongoDB 中查找匹配的用戶
+      const existingUser: IUser | null = await User.findOne({ email });
+
+      console.log("There is verifyUser");
+
+      if (existingUser) {
+        console.log("user exists");
+        res.status(200).send({
+          success: true,
+          message: "User exists",
+        });
+      } else {
+        console.log("user not exists");
+        res.status(404).send({
+          success: false,
+          message: "User not found",
+        });
+      }
+    } catch (error) {
+      res.status(500).send({
         success: false,
-        message: "User not found",
+        message: "An unexpected error occurred. Please try again.",
       });
+      next(error);
     }
   }
 }

@@ -1,32 +1,26 @@
 export const users = [
-    {
-      "username": "testuser1",
-      "email": "testuser1@example.com",
-      "password": "password123"
-    },
-    {
-      "username": "testuser2",
-      "email": "testuser2@example.com",
-      "password": "mypassword"
-    },
-    {
-      "username": "testuser3",
-      "email": "testuser3@example.com",
-      "password": "securepass"
-    },
-    {
-      "username": "testuser4",
-      "email": "testuser4@example.com",
-      "password": "letmein"
-    },
-    {
-      "username": "testuser5",
-      "email": "testuser5@example.com",
-      "password": "12345678"
-    },
-    {
-      "username": "testuser6",
-      "email": "testuser6@example.com",
-      "password": "193678"
-    }
-  ];
+  {
+    "username": "admin",
+    "password": "abc123",
+    "email": "admin@example.com",
+    "role": "normal",
+    "favouriteVenues": [
+      "3110565",
+      "3110267"
+    ]
+  },
+  {
+    "username": "admin1",
+    "email": "admin1@123.com",
+    "password": "123456",
+    "favouriteVenues": [],
+    "role": "normal"
+  },
+  {
+    "username": "admin1123",
+    "email": "123121@fdwopq.com",
+    "password": "123456",
+    "favouriteVenues": [],
+    "role": "normal"
+  }
+];
