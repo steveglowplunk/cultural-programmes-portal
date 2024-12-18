@@ -8,9 +8,9 @@ export interface IComment extends Document {
 }
 
 const CommentSchema: Schema = new Schema({
-  user: { type: mongoose.Types.ObjectId, ref: 'User', required: true },
-  location: { type: mongoose.Types.ObjectId, ref: 'Location', required: true },
-  text: { type: String, required: true },
+  user: { type: String },
+  location: { type: String},
+  text: { type: String },
   createdAt: { type: Date, default: Date.now },
 });
 

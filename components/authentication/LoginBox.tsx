@@ -34,13 +34,7 @@ const LoginBox = ({ bUseAdmin }: { bUseAdmin?: boolean }) => {
         setMessage("Login successful!");
         localStorage.setItem("token", response.data.token); // 存儲 JWT
         // redirect based on role
-        console.log("Generated data:", response.data);
-        console.log("User role:", response.data.userObject);
-        console.log("User role:", response.data.userObject.userId);
-
-         //get user data
-          getUserData({id:response.data.userObject.userId});
-
+        getUserData({ id: response.data.userObject.userId });
         const redirectUrl = response.data.redirectUrl;
         console.log("Redirecting to:", redirectUrl);
         router.push(redirectUrl);

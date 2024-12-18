@@ -12,6 +12,7 @@ import LocationDetailsPanel from "@/components/event/LocationDetailsPanel";
 import withAuth from "@/app/withAuth";
 import CommentForm from "@/components/comment/CommentForm";
 import CommentList from "@/components/comment/CommentList";
+import { Button } from "primereact/button";
 
 const EventInfo = () => {
   const Map = useMemo(
@@ -50,6 +51,7 @@ const EventInfo = () => {
   const [favList, setFavList] = useState<string[]>([]);
   const [filterBy, setFilterBy] = useState<FilterBy>(FilterBy.All);
   const [zoom, setZoom] = useState<number>(11);
+  const [isShowComments, setIsShowComments] = useState(false);
 
   // Load user data once on mount
   useEffect(() => {
@@ -82,6 +84,7 @@ const EventInfo = () => {
         onFavClick: handleFavClick,
         userName: username || "",
         isFavourite: favorites.includes(location.venueId),
+        onShowComments: handleShowComments,
       }));
 
       setLocations(locationsWithSelection);
@@ -161,6 +164,7 @@ const EventInfo = () => {
       setMarker([
         parseFloat(location.latitude),
         parseFloat(location.longitude),
+        parseFloat(location.venueId),
       ]);
       setZoom(17); // Set zoom level to 17 when location selected
       setLocations(
@@ -179,7 +183,14 @@ const EventInfo = () => {
 
   const handleOnBack = () => {
     setPage(SideBarPage.VenueList);
+    setSelectedLocation(null); // 清除選中的位置，隱藏評論區域
   };
+
+  const handleShowComments = (location: Location) => {
+    setSelectedLocation(location);
+    setIsShowComments(true);
+  }
+
 
   return (
     <>
@@ -221,7 +232,7 @@ const EventInfo = () => {
                 </button>
               </div>
             </div>
-            <div className="w-96 h-[600px] overflow-y-auto">
+            <div className="w-96 h-[500px] overflow-y-auto">
               <ListBox
                 filter
                 value={selectedLocation}
@@ -238,12 +249,27 @@ const EventInfo = () => {
             location={selectedLocation}
           />
         )}
-        <div className="relative w-full">
+        <div className="relative w-full max-h-[550px]">
           <Map posix={marker} markerList={markerList} zoom={zoom} locations={sortedLocations} />
-          <div>
-            {/* <CommentForm locationId={selectedLocation?._id || ""} />
-            <CommentList locationId={selectedLocation?._id || ""} /> */}
-          </div>
+        </div>
+        <div className="ml-4">
+          {selectedLocation && isShowComments && (
+            <div>
+              <Button
+                icon="pi pi-times"
+                severity="secondary"
+                rounded
+                text
+                aria-label="Close"
+                onClick={() => setIsShowComments(false)}
+              />
+              <CommentForm
+                locationId={selectedLocation.venueId}
+                username={userData?.username}
+              />
+              <CommentList locationId={selectedLocation.venueId} />
+            </div>
+          )}
         </div>
       </div>
     </>

@@ -1,4 +1,3 @@
-
 import { Request, Response, NextFunction } from "express";
 import { users } from "../data/Users"; // Correctly import the users arr
 import { User, IUser } from "../models/User";
@@ -30,7 +29,7 @@ export class AuthController {
           role: user.role,
           userId: user._id,
         }
-      
+
         console.log("Generated Token:", token); // 打印生成的 JWT
         console.log("User role:", user.role); // 打印用戶角色
         res.status(200).send({

@@ -1,39 +1,55 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import axios from "axios";
+import { InputTextarea } from "primereact/inputtextarea";
+import { Button } from "primereact/button";
 
-const CommentForm = ({ locationId }: { locationId: string }) => {
+interface CommentFormProps {
+  locationId: string;
+  username: string | undefined;
+  onCommentAdded: () => void; // Callback function to notify when a comment is added
+}
+
+const CommentForm: React.FC<CommentFormProps> = ({ locationId, username, onCommentAdded }) => {
   const [text, setText] = useState("");
-  const [message, setMessage] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem("token");
-      const response = await axios.post(
-        "http://localhost:3001/api/comments",
-        { locationId, text },
+      const token = localStorage.getItem("token"); // Assuming the token is stored in localStorage
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/comments`,
+        {
+          username,
+          locationId,
+          text,
+          date: new Date(),
+        },
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }
       );
-      setMessage("Comment added successfully");
-      setText("");
+      setText(""); // Clear the input field
+      onCommentAdded(); // Notify CommentList of the new comment
     } catch (error) {
-      setMessage("Failed to add comment");
+      console.error("Error adding comment:", error);
     }
   };
 
   return (
     <form onSubmit={handleSubmit}>
-      <textarea
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        placeholder="Add your comment"
-      />
-      <button type="submit">Submit</button>
-      {message && <p>{message}</p>}
+      <div className="space-y-4 mt-2">
+        <p className="font-bold text-2xl">Discussion</p>
+        <InputTextarea
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Add a comment..."
+          className="w-96 h-32"
+        />
+        <br />
+        <Button type="submit">Add Comment</Button>
+      </div>
     </form>
   );
 };

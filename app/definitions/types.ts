@@ -10,6 +10,7 @@ export interface Location {
     isFavourite: boolean;
     onShowDetails: (location: Location) => void;
     onFavClick: (location: Location) => void;
+    onShowComments: (location: Location) => void;
 }
 
 export interface Event {

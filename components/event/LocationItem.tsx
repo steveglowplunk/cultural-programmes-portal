@@ -29,11 +29,19 @@ const LocationItem = (option: Location) => {
             <p>
                 <span className='font-bold'>No. of events: </span> {option.eventsCount}
             </p>
-            {option.isSelected && <button className='hover:underline space-x-2'
-                onClick={() => option.onShowDetails(option)}>
-                <span>Show details</span>
-                <i className='pi pi-arrow-right'></i>
-            </button>}
+            {option.isSelected && 
+            <div className='flex space-x-2'>
+                <button className='hover:underline space-x-2'
+                    onClick={() => option.onShowDetails(option)}>
+                    <span>Show details</span>
+                    <i className='pi pi-arrow-right'></i>
+                </button>
+                <button className='hover:underline space-x-2'
+                    onClick={() => option.onShowComments(option)}>
+                    <span>Show Comments</span>
+                    <i className='pi pi-comments'></i>
+                </button>
+            </div>}
         </div>
     );
 };
