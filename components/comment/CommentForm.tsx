@@ -1,27 +1,37 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import axios from "axios";
+import { date } from "zod";
 
-const CommentForm = ({ locationId }: { locationId: string }) => {
+interface CommentFormProps {
+  locationId: string;
+  username: string | undefined;
+}
+
+const CommentForm: React.FC<CommentFormProps> = ({ locationId, username }) => {
   const [text, setText] = useState("");
-  const [message, setMessage] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem("token");
-      const response = await axios.post(
-        "http://localhost:3001/api/comments",
-        { locationId, text },
+      const token = localStorage.getItem("token"); // 假設令牌存儲在 localStorage 中
+      console.log("username:", username);
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/comments`,
+        {
+          locationId,
+          username,
+          text,
+          date: new Date(),
+        },
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }
       );
-      setMessage("Comment added successfully");
       setText("");
     } catch (error) {
-      setMessage("Failed to add comment");
+      console.error("Failed to submit comment", error);
     }
   };
 
@@ -30,10 +40,9 @@ const CommentForm = ({ locationId }: { locationId: string }) => {
       <textarea
         value={text}
         onChange={(e) => setText(e.target.value)}
-        placeholder="Add your comment"
+        placeholder="Write your comment here"
       />
       <button type="submit">Submit</button>
-      {message && <p>{message}</p>}
     </form>
   );
 };

@@ -43,6 +43,8 @@ const withAuth = (
           return;
         }
 
+        console.log("User is authorized");
+
         setIsAuthorized(true);
       }
     }, [isClient, router]);

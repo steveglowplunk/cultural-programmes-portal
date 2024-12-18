@@ -17,6 +17,15 @@ const CommentList = ({ locationId }: { locationId: string }) => {
         const response = await axios.get(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/comments/location/${locationId}`
         );
+        console.log("the value of locationId:", locationId);
+        console.log(
+          "the access URL:",
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/comments/location/${locationId}`
+        );
+        //console.log("Received comments:", response.data);
+        response.data.forEach((comment: Comment, index: number) => {
+          console.log(`Comment ${index + 1}:`, comment);
+        });
         setComments(response.data);
       } catch (error) {
         console.error("Failed to fetch comments", error);
@@ -29,11 +38,11 @@ const CommentList = ({ locationId }: { locationId: string }) => {
   return (
     <div>
       <h3>Comments</h3>
-      {comments.map((comment) => (
-        <div key={comment.date}>
+      {comments.map((comment, index) => (
+        <div key={index}>
           <p>{comment.text}</p>
           <p>By: {comment.username}</p>
-          <p>Date: {new Date(comment.date).toLocaleString()}</p>
+          <p>Date: {new Date(comment.date).toLocaleString("en-US")}</p>
         </div>
       ))}
     </div>

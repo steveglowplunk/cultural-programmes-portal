@@ -1,4 +1,3 @@
-
 import { Request, Response, NextFunction } from "express";
 import { users } from "../data/Users"; // Correctly import the users arr
 import { User, IUser } from "../models/User";
@@ -24,12 +23,19 @@ export class AuthController {
           SECRET_KEY,
           { expiresIn: "1h" }
         );
+
+        const userObject = {
+          role: user.role,
+          userId: user._id,
+        };
+
         console.log("Generated Token:", token); // 打印生成的 JWT
         console.log("User role:", user.role); // 打印用戶角色
         res.status(200).send({
           success: true,
           message: "Login successful",
           token,
+          userObject,
           redirectUrl:
             user.role === "admin"
               ? "http://localhost:3000/admin"

@@ -43,6 +43,11 @@ const EventInfo = () => {
   const [sortBy, setSortBy] = useState<SortBy>(SortBy.Alphabet);
   const [page, setPage] = useState<SideBarPage>(SideBarPage.VenueList);
 
+  const [userData, setUserData] = useState<{
+    role: string;
+    username: string;
+  } | null>(null);
+
   useEffect(() => {
     const fetchVenues = async () => {
       try {
@@ -66,6 +71,11 @@ const EventInfo = () => {
       }
     };
 
+    const storedUserData = localStorage.getItem("userData");
+    if (storedUserData) {
+      setUserData(JSON.parse(storedUserData));
+    }
+
     fetchVenues();
   }, []);
 
@@ -87,6 +97,7 @@ const EventInfo = () => {
       setMarker([
         parseFloat(location.latitude),
         parseFloat(location.longitude),
+        parseFloat(location.venueId),
       ]);
       setLocations(
         locations.map((loc) => ({
@@ -104,6 +115,7 @@ const EventInfo = () => {
 
   const handleOnBack = () => {
     setPage(SideBarPage.VenueList);
+    setSelectedLocation(null); // 清除選中的位置，隱藏評論區域
   };
 
   return (
@@ -154,8 +166,15 @@ const EventInfo = () => {
         <div className="relative w-full">
           <Map posix={marker} />
           <div>
-            <CommentForm locationId={selectedLocation?._id || ""} />
-            <CommentList locationId={selectedLocation?._id || ""} />
+            {selectedLocation && (
+              <>
+                <CommentForm
+                  locationId={selectedLocation.venueId}
+                  username={userData?.username}
+                />
+                <CommentList locationId={selectedLocation.venueId} />
+              </>
+            )}
           </div>
         </div>
       </div>

@@ -34,6 +34,7 @@ const LoginBox = ({ bUseAdmin }: { bUseAdmin?: boolean }) => {
         setMessage("Login successful!");
         localStorage.setItem("token", response.data.token); // 存儲 JWT
         // redirect based on role
+        getUserData({ id: response.data.userObject.userId });
         const redirectUrl = response.data.redirectUrl;
         console.log("Redirecting to:", redirectUrl);
         router.push(redirectUrl);
@@ -54,6 +55,18 @@ const LoginBox = ({ bUseAdmin }: { bUseAdmin?: boolean }) => {
       }
     } finally {
       setBIsLoginLoading(false);
+    }
+  };
+
+  const getUserData = async ({ id }: { id: string }) => {
+    console.log("Getting user data with id:", id);
+    try {
+      const response = await axios.get(
+        `http://localhost:3001/admin/users/${id}`
+      );
+      localStorage.setItem("userData", JSON.stringify(response.data));
+    } catch (error) {
+      console.error("Error getting user data:", error);
     }
   };
 
