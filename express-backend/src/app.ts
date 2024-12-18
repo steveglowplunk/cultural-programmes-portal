@@ -239,8 +239,7 @@ db.once('open', function () {
     });
   }
   
-  async function fetch10UniqueLocationsWith3Events() {
-    console.log("inside fetch");
+  async function fetchLocationsWithEvents() {
     try {
       const locations = await Location.aggregate([
         {
@@ -274,12 +273,12 @@ db.once('open', function () {
             venueName: 1,
             latitude: 1,
             longitude: 1,
-            events: { $slice: ['$events', 3] }
+            eventsCount: { $size: "$events" }
           }
         },
-        { $limit: 10 }
+        {$limit: 10}
       ]);
-      console.log('Unique locations with 3 or more events and non-empty latitude/longitude:', locations);
+      console.log('Locations with events:', locations);
     } catch (err) {
       console.error('Error fetching locations:', err);
     }
@@ -376,6 +375,8 @@ db.once('open', function () {
       console.error('Error fetching locations:', err);
     }
   }
+
+
   async function searchLocationByKeyword(keyword: string) {
     try {
       const locations = await Location.find({ venueName: { $regex: keyword, $options: 'i' } });
@@ -402,10 +403,12 @@ db.once('open', function () {
         },
         {
           $project: {
+            _id : 0,
             venueId: 1,
             venueName: 1,
-            latitude: 1,
-            longitude: 1,
+            cat1: 1,
+            // latitude: 1,
+            // longitude: 1,
             events: 1
           }
         }
@@ -471,26 +474,7 @@ db.once('open', function () {
     await insertUserData();
     await fetchAndStoreLocationData();
     await fetchAndStoreEventData();
-    //await fetch10LocationsWith3Events();
   }
-
-  // async function updateEventTitle(eventId: string, newTitle: string) {
-  //   try {
-  //     const result = await Event.updateOne(
-  //       { eventId: eventId },
-  //       { $set: { titleE: newTitle } }
-  //     );
-  //     if (result.modifiedCount === 0) {
-  //       console.log('Event not found or titleE not updated');
-  //     } else {
-  //       console.log('Event title updated successfully');
-  //     }
-  //   } catch (error) {
-  //     console.log('Error:', error);
-  //   }
-  // }
-
-
 
   async function updateUserFavouriteVenues(username: string, venueId: string) {
     try {
@@ -537,20 +521,34 @@ db.once('open', function () {
     }
   }
 
-  async function call(){
-    await updateUserFavouriteVenues("admin", "3110565");
-    await updateUserFavouriteVenues("admin", "3110267");
+  async function getFavouriteVenues(username: string) {
+    try {
+      const user = await User.findOne({ username: username });
+      if (user) {
+        console.log('Favourite venues for user', username, ':', user.favouriteVenues);
+      } else {
+        console.log('User not found');
+      }
+    } catch (err) {
+      console.error('Error fetching favourite venues:', err);
+    }
   }
-
+  // async function call(){
+  //   await updateUserFavouriteVenues("admin", "3110565");
+  //   await updateUserFavouriteVenues("admin", "3110267");
+  // }
+  //fetchLocationsWithEvents();
+  //searchLocationByKeyword("H");
   // updateEventTitle("166329","yes");
 
   console.log("Fetching and storing data...");
-  call();
+  //call();
   fetchData(); // Call the function to fetch and store data
   setAuthRoutes(app);
   setAdminRoutes(app); // Set up admin routes
   setCommentRoutes(app); // Set up comment routes
   setUserRoutes(app); // Set up user routes
+  filterLocationsByEventCategory("inc4sc5");
   // getAllEventCategories().then(categories => {
   //   console.log(categories);
   // }).catch(err => {
@@ -561,7 +559,7 @@ db.once('open', function () {
   //searchLocationByKeyword("Kowloon");
 
 
-
+  getFavouriteVenues("admin");
   app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
   });
