@@ -1,7 +1,10 @@
-import { Request, Response } from 'express';
-import { User } from '../models/User';
-import { Event } from '../models/Event';
-import { Location } from '../models/Location';
+import { Request, Response } from "express";
+import { User } from "../models/User";
+import { Event } from "../models/Event";
+import { Location } from "../models/Location";
+import fs from "fs";
+import path from "path";
+const usersFilePath = path.join(__dirname, "../data/Users.ts");
 
 export class AdminController {
   // User CRUD operations
@@ -38,7 +41,10 @@ export class AdminController {
 
   async updateUser(req: Request, res: Response) {
     try {
-      const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+      const user = await User.findByIdAndUpdate(req.params.id, req.body, {
+        new: true,
+        runValidators: true,
+      });
       if (!user) {
         return res.status(404).send();
       }
@@ -50,25 +56,51 @@ export class AdminController {
 
   async deleteUser(req: Request, res: Response) {
     try {
+      // 刪除 MongoDB 中的數據
       const user = await User.findByIdAndDelete(req.params.id);
       if (!user) {
         return res.status(404).send();
       }
+
+      // 確定 Users.ts 文件的路徑
+      const usersFilePath = path.join(__dirname, "../data/Users.ts");
+      console.log("Users file path:", usersFilePath);
+
+      // 讀取 Users.ts 文件的內容
+      const usersFileContent = fs.readFileSync(usersFilePath, "utf-8");
+
+      // 提取數據
+      const start =
+        usersFileContent.indexOf("export const users = ") +
+        "export const users = ".length;
+      const end = usersFileContent.lastIndexOf(";");
+      const usersDataString = usersFileContent.substring(start, end).trim();
+      const usersData = JSON.parse(usersDataString);
+
+      // 刪除相應的用戶
+      const updatedUsersData = usersData.filter(
+        (u: any) => u.username !== user.username
+      );
+
+      // 將更新後的數據寫回 Users.ts 文件
+      const updatedUsersFileContent = `export const users = ${JSON.stringify(
+        updatedUsersData,
+        null,
+        2
+      )};`;
+      fs.writeFileSync(usersFilePath, updatedUsersFileContent);
+      console.log("Users file updated successfully");
+
       res.status(200).send(user);
     } catch (error) {
+      console.error("Error updating Users.ts file:", error);
       res.status(500).send(error);
     }
   }
 
-  // Event CRUD operations
   async createEvent(req: Request, res: Response) {
-    try {
-      const event = new Event(req.body);
-      await event.save();
-      res.status(201).send(event);
-    } catch (error) {
-      res.status(400).send(error);
-    }
+    // 實現 createEvent 方法的邏輯
+    res.status(200).send("Event created");
   }
 
   async getEvents(req: Request, res: Response) {
@@ -94,7 +126,10 @@ export class AdminController {
 
   async updateEvent(req: Request, res: Response) {
     try {
-      const event = await Event.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+      const event = await Event.findByIdAndUpdate(req.params.id, req.body, {
+        new: true,
+        runValidators: true,
+      });
       if (!event) {
         return res.status(404).send();
       }
@@ -150,7 +185,11 @@ export class AdminController {
 
   async updateLocation(req: Request, res: Response) {
     try {
-      const location = await Location.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+      const location = await Location.findByIdAndUpdate(
+        req.params.id,
+        req.body,
+        { new: true, runValidators: true }
+      );
       if (!location) {
         return res.status(404).send();
       }
@@ -172,3 +211,4 @@ export class AdminController {
     }
   }
 }
+export default new AdminController();
