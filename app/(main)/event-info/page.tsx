@@ -25,7 +25,7 @@ const EventInfo = () => {
 
   enum SortBy {
     Alphabet = "alphabet",
-    EventCount = "eventCount",
+    EventsCount = "eventsCount",
   }
 
   enum SideBarPage {
@@ -73,8 +73,8 @@ const EventInfo = () => {
     return [...locations].sort((a, b) => {
       if (sortBy === SortBy.Alphabet) {
         return a.venueName.localeCompare(b.venueName);
-      } else if (sortBy === SortBy.EventCount) {
-        return b.eventCount - a.eventCount;
+      } else if (sortBy === SortBy.EventsCount) {
+        return b.eventsCount - a.eventsCount;
       }
       return 0;
     });
@@ -124,11 +124,11 @@ const EventInfo = () => {
                 </button>
                 <button
                   className={`hover:underline ${
-                    sortBy === SortBy.EventCount
+                    sortBy === SortBy.EventsCount
                       ? "font-bold text-cyan-700"
                       : ""
                   }`}
-                  onClick={() => setSortBy(SortBy.EventCount)}
+                  onClick={() => setSortBy(SortBy.EventsCount)}
                 >
                   Event count
                 </button>

@@ -22,7 +22,7 @@ const LocationItem = (option: Location) => {
                 />
             </div>
             <p>
-                <span className='font-bold'>No. of events: </span> {option.eventCount}
+                <span className='font-bold'>No. of events: </span> {option.eventsCount}
             </p>
             {option.isSelected && <button className='hover:underline space-x-2'
                 onClick={() => option.onShowDetails(option)}>

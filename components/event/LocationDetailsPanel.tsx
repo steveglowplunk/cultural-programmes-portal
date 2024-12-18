@@ -124,7 +124,7 @@ const LocationDetailsPanel = ({ onBack, location }: LocationDetailsPanelProps) =
                 <p className="text-xl font-bold">{location.venueName}</p>
                 <p className="text-gray-600">
                     <span className="font-bold">Number of Events: </span>
-                    {location.eventCount}
+                    {location.eventsCount}
                 </p>
                 <hr className="border-gray-300 my-2" />
                 <p className="font-bold text-lg mb-3">Events</p>

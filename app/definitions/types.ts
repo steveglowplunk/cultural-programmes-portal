@@ -4,7 +4,7 @@ export interface Location {
     venueName: string;
     latitude: string;
     longitude: string;
-    eventCount: number;
+    eventsCount: number;
     isSelected?: boolean;
     onShowDetails: (location: Location) => void;
 }

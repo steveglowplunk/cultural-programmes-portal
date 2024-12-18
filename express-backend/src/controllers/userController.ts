@@ -7,7 +7,7 @@ import { Location } from "../models/Location";
 import { eventNames } from "process";
 import fs from "fs";
 
-const usersFilePath = path.join(__dirname, "data", "Users.ts");
+const usersFilePath = path.join(__dirname, "../", "data", "Users.ts");
 
 export class UserController {
   async getEvent(req: Request, res: Response) {
@@ -307,12 +307,35 @@ export class UserController {
         console.log(
           `VenueId ${venueId} is already in the favouriteVenues array for user ${username}`
         );
-        return res.status(400).send({
-          success: false,
-          message: "Venue already in favourite venues",
+        // Remove the venueId from favouriteVenues
+        const result = await User.updateOne(
+          { username: username },
+          { $pull: { favouriteVenues: venueId } }
+        );
+
+        if (result.modifiedCount === 0) {
+          console.log("User not found or favouriteVenues not updated");
+          return res.status(500).send({
+            success: false,
+            message: "Failed to remove venue from favourite venues",
+          });
+        }
+
+        // Write the updated user data to the file
+        const updatedUser = await User.findOne({ username: username });
+        if (updatedUser) {
+          const users = await User.find({});
+          fs.writeFileSync(usersFilePath, `export const users = ${JSON.stringify(users, null, 2)};`);
+          console.log('Updated user data written to file');
+        }
+
+        return res.status(200).send({
+          success: true,
+          message: "Venue removed from favourite venues",
         });
       }
 
+      // Add the venueId to favouriteVenues
       const result = await User.updateOne(
         { username: username },
         { $addToSet: { favouriteVenues: venueId } }
@@ -322,40 +345,28 @@ export class UserController {
         console.log("User not found or favouriteVenues not updated");
         return res.status(500).send({
           success: false,
-          message: "User not found or favouriteVenues not updated",
-        });
-      } else {
-        console.log("User favouriteVenues updated successfully");
-
-        // Fetch the updated user data
-        const updatedUser = await User.findOne({ username: username });
-        if (updatedUser) {
-          // Find the index of the user in the users array
-          const userIndex = users.findIndex(
-            (user) => user.username === username
-          );
-          console.log("User index:", userIndex);
-          if (userIndex !== -1) {
-            // Update the user's favouriteVenues in the users array
-            users[userIndex].favouriteVenues.push(venueId); // Ensure favouriteVenues is an array of strings
-            // Write the updated user data to the file
-            fs.writeFileSync(
-              usersFilePath,
-              `export const users = ${JSON.stringify(users, null, 2)};`
-            );
-            console.log("Updated user data written to file");
-          }
-        }
-        return res.status(200).send({
-          success: true,
-          message: "User favouriteVenues updated successfully",
+          message: "Failed to add venue to favourite venues",
         });
       }
+
+      // Write the updated user data to the file
+      const updatedUser = await User.findOne({ username: username });
+      if (updatedUser) {
+        const users = await User.find({});
+        fs.writeFileSync(usersFilePath, `export const users = ${JSON.stringify(users, null, 2)};`);
+        console.log('Updated user data written to file');
+      }
+
+      return res.status(200).send({
+        success: true,
+        message: "Venue added to favourite venues",
+      });
     } catch (err) {
       console.error("Error updating user favourite venues:", err);
-      return res
-        .status(500)
-        .send({ success: false, message: "Internal server error" });
+      return res.status(500).send({
+        success: false,
+        message: "An error occurred while updating favourite venues",
+      });
     }
   }
   async getFavouriteVenues(req: Request, res: Response) {
