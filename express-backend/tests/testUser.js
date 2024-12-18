@@ -35,15 +35,29 @@ async function testUserFunctions() {
         //     console.error('Test failed: GET /event-categories', error.response ? error.response.data : error.message);
         // }
 
-        // // Test GET /locations/distance
-        // try {
-        //     let response = await axios.get(`${baseURL}/locations/distance`);
-        //     assert.strictEqual(response.status, 200);
-        //     assert.strictEqual(response.data.success, true);
-        //     console.log('Test passed: GET /locations/distance');
-        // } catch (error) {
-        //     console.error('Test failed: GET /locations/distance', error.response ? error.response.data : error.message);
-        // }
+        //Test GET /locations/distance
+        try {
+            // Test GET /locations/distance
+            try {
+                const latitude = 22.3964; // Example latitude
+                const longitude = 114.1095; // Example longitude
+    
+                let response = await axios.get(`${baseURL}/locations/distance`, {
+                    params: {
+                        latitude,
+                        longitude
+                    }
+                });
+                assert.strictEqual(response.status, 200);
+                console.log('Test passed: GET /locations/distance');
+                console.log('Locations:', response.data);
+            } catch (error) {
+                console.error('Test failed: GET /locations/distance', error.response ? error.response.data : error.message);
+            }
+    
+        } catch (error) {
+            console.error('Error:', error.response ? error.response.data : error.message);
+        }
 
         // // Test GET /locations/category
         // try {
@@ -55,44 +69,46 @@ async function testUserFunctions() {
         //     console.error('Test failed: GET /locations/category', error.response ? error.response.data : error.message);
         // }
 
-        // Test GET /locations/search
-        try {
-            let response = await axios.get(`${baseURL}/locations/search?keyword=Hong`);
-            assert.strictEqual(response.status, 200);
-            assert.strictEqual(response.data.success, true);
-            console.log('Test passed: GET /locations/search');
-        } catch (error) {
-            console.error('Test failed: GET /locations/search', error.response ? error.response.data : error.message);
-        }
-
-        // Test GET /locations/more-than-3-events-asc
-        try {
-            let response = await axios.get(`${baseURL}/locations/more-than-3-events-asc`);
-            assert.strictEqual(response.status, 200);
-            assert.strictEqual(response.data.success, true);
-            console.log('Test passed: GET /locations/more-than-3-events-asc');
-        } catch (error) {
-            console.error('Test failed: GET /locations/more-than-3-events-asc', error.response ? error.response.data : error.message);
-        }
-
-        // Test GET /locations/more-than-3-events-desc
-        try {
-            let response = await axios.get(`${baseURL}/locations/more-than-3-events-desc`);
-            assert.strictEqual(response.status, 200);
-            assert.strictEqual(response.data.success, true);
-            console.log('Test passed: GET /locations/more-than-3-events-desc');
-        } catch (error) {
-            console.error('Test failed: GET /locations/more-than-3-events-desc', error.response ? error.response.data : error.message);
-        }
-
-        // Test POST /users/:username/favourite-venues
+        // // Test GET /locations/search
         // try {
-        //     let response = await axios.post(`${baseURL}/users/testuser/favourite-venues`, {
-        //         venueId: '12345'
-        //     });
+        //     let response = await axios.get(`${baseURL}/locations/search?keyword=Hong`);
         //     assert.strictEqual(response.status, 200);
         //     assert.strictEqual(response.data.success, true);
-        //     console.log('Test passed: POST /users/:username/favourite-venues');
+        //     console.log('Test passed: GET /locations/search');
+        // } catch (error) {
+        //     console.error('Test failed: GET /locations/search', error.response ? error.response.data : error.message);
+        // }
+
+        // // Test GET /locations/more-than-3-events-asc
+        // try {
+        //     let response = await axios.get(`${baseURL}/locations/more-than-3-events-asc`);
+        //     assert.strictEqual(response.status, 200);
+        //     assert.strictEqual(response.data.success, true);
+        //     console.log('Test passed: GET /locations/more-than-3-events-asc');
+        // } catch (error) {
+        //     console.error('Test failed: GET /locations/more-than-3-events-asc', error.response ? error.response.data : error.message);
+        // }
+
+        // // Test GET /locations/more-than-3-events-desc
+        // try {
+        //     let response = await axios.get(`${baseURL}/locations/more-than-3-events-desc`);
+        //     assert.strictEqual(response.status, 200);
+        //     assert.strictEqual(response.data.success, true);
+        //     console.log('Test passed: GET /locations/more-than-3-events-desc');
+        // } catch (error) {
+        //     console.error('Test failed: GET /locations/more-than-3-events-desc', error.response ? error.response.data : error.message);
+        // }
+
+        //Test POST /users/:username/favourite-venues
+        // try {
+        //     let response = await axios.post(`${baseURL}/users/admin/favourite-venues`, {
+        //         venueId: '12345'
+        //     });
+        //         assert.strictEqual(response.status, 200);
+        //         let result = await axios.get(`${baseURL}/users/admin/favourite-venues`);
+        //         console.log('Get favourite venues:', result.data);
+        //         console.log('Test passed: POST /users/:username/favourite-venues');
+
         // } catch (error) {
         //     console.error('Test failed: POST /users/:username/favourite-venues', error.response ? error.response.data : error.message);
         // }

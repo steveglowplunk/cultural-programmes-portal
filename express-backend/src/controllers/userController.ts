@@ -43,24 +43,54 @@ export class UserController {
     }
   }
 
+
   async filterLocationWithDistance(req: Request, res: Response) {
-    const { latitude, longitude, distance } = req.query;
+    const { latitude, longitude } = req.query;
+  
+    // Ensure latitude and longitude are provided
+    if (!latitude || !longitude) {
+      return res.status(400).send({ message: 'Latitude and longitude are required' });
+    }
+  
     try {
-      const locations = await Location.find({
-        location: {
-          $geoWithin: {
-            $centerSphere: [
-              [parseFloat(longitude as string), parseFloat(latitude as string)],
-              parseFloat(distance as string) / 3963.2,
-            ],
-          },
-        },
+      // Parse the query parameters to float
+      const lat1 = parseFloat(latitude as string);
+      const lon1 = parseFloat(longitude as string);
+  
+      // Define the radius in kilometers
+      const radius = 10;
+  
+      // Fetch all locations
+      const locations = await Location.find();
+  
+      // Filter locations within the specified distance using the Haversine formula
+      const nearbyLocations = locations.filter(location => {
+        const lat2 = parseFloat(location.latitude);
+        const lon2 = parseFloat(location.longitude);
+  
+        // Calculate the distance between the two points
+        const R = 6371; // Radius of the Earth in kilometers
+        const dLat = (lat2 - lat1) * (Math.PI / 180);
+        const dLon = (lon2 - lon1) * (Math.PI / 180);
+        const a =
+          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+          Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
+          Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        const distance = R * c; // Distance in kilometers
+  
+        return distance <= radius;
       });
-      res.status(200).send(locations);
+  
+      // Send the found locations as the response
+      res.status(200).send(nearbyLocations);
     } catch (error) {
-      res.status(500).send(error);
+      // Handle any errors that occur during the query
+      console.error('Error searching locations by distance:', error);
+      res.status(500).send({ message: 'Internal server error', error });
     }
   }
+
 
   async filterLocationsByEventCategory(req: Request, res: Response) {
     const { category } = req.query;
