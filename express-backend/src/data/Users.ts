@@ -28,8 +28,10 @@ export const users = [
     "email": "testuser1@example.com",
     "password": "password123",
     "favouriteVenues": [
-      "3110031",
-      "87610118"
+      "87310051",
+      "36310035",
+      "76810048",
+      "87110023"
     ],
     "role": "normal"
   },
@@ -83,17 +85,17 @@ export const users = [
     "role": "normal"
   },
   {
-    username: "13223121",
-    email: "41223r1@vfds.com",
-    password: "123456",
-    favouriteVenues: [],
-    role: "normal",
+    "username": "13223121",
+    "email": "41223r1@vfds.com",
+    "password": "123456",
+    "favouriteVenues": [],
+    "role": "normal"
   },
   {
-    username: "I am become death destroyer of world",
-    email: "nuclear@bomb.com",
-    password: "1234TAT",
-    favouriteLocations: [],
-    role: "admin",
+    "username": "I am become death destroyer of world",
+    "email": "nuclear@bomb.com",
+    "password": "1234TAT",
+    "favouriteLocations": [],
+    "role": "admin"
   }
 ];

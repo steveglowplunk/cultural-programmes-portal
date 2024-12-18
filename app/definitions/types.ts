@@ -6,7 +6,10 @@ export interface Location {
     longitude: string;
     eventsCount: number;
     isSelected?: boolean;
+    userName: string;
+    isFavourite: boolean;
     onShowDetails: (location: Location) => void;
+    onFavClick: (location: Location) => void;
 }
 
 export interface Event {

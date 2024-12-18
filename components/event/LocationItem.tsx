@@ -1,13 +1,18 @@
-import { useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import { Location } from "@/app/definitions/types";
 import { Button } from 'primereact/button';
 
 const LocationItem = (option: Location) => {
-    const [isToggled, setIsToggled] = useState(false);
+    const [isToggled, setIsToggled] = useState(option.isFavourite);
 
     const handleToggle = () => {
+        option.onFavClick(option);
         setIsToggled(!isToggled);
     };
+
+    useEffect(() => {
+        setIsToggled(option.isFavourite);
+    }, [option.isFavourite]);
 
     return (
         <div className='border-b border-gray-200 pb-2'>
