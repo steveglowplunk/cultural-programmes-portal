@@ -7,17 +7,20 @@ import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
 import "leaflet-defaulticon-compatibility";
 import { useState, useRef, useEffect } from "react";
+import { Location } from "@/app/definitions/types";
 
 interface MapProps {
     posix: LatLngExpression | LatLngTuple,
+    markerList: (LatLngExpression | LatLngTuple)[],
     zoom?: number,
+    locations?: Location[],
 }
 
 const defaults = {
-    zoom: 19,
+    zoom: 11,
 }
 
-const Map = ({ zoom = defaults.zoom, posix }: MapProps) => {
+const Map = ({ zoom = defaults.zoom, posix, markerList, locations }: MapProps) => {
     const mapRef = useRef<L.Map | null>(null);
 
     useEffect(() => {
@@ -38,7 +41,14 @@ const Map = ({ zoom = defaults.zoom, posix }: MapProps) => {
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
-            <Marker position={posix} draggable={false} />
+            
+            {markerList.map((marker, index) => (
+                <Marker position={marker} key={index}>
+                    <Popup>
+                        {locations && locations[index].venueName}
+                    </Popup>
+                </Marker>
+            ))}
 
         </MapContainer>
     )

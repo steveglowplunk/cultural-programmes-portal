@@ -43,11 +43,13 @@ const EventInfo = () => {
   const [locations, setLocations] = useState<Location[]>([]);
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
   const [marker, setMarker] = useState<LatLngExpression | LatLngTuple>([22.285056, 114.222075]);
+  const [markerList, setMarkerList] = useState<(LatLngExpression | LatLngTuple)[]>([]);
   const [sortBy, setSortBy] = useState<SortBy>(SortBy.Alphabet);
   const [page, setPage] = useState<SideBarPage>(SideBarPage.VenueList);
   const [userData, setUserData] = useState<{ role: string; username: string } | null>(null);
   const [favList, setFavList] = useState<string[]>([]);
   const [filterBy, setFilterBy] = useState<FilterBy>(FilterBy.All);
+  const [zoom, setZoom] = useState<number>(11);
 
   // Load user data once on mount
   useEffect(() => {
@@ -83,6 +85,7 @@ const EventInfo = () => {
       }));
 
       setLocations(locationsWithSelection);
+      setMarkerList(locationsWithSelection.map((loc: Location) => [parseFloat(loc.latitude), parseFloat(loc.longitude)]));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
       console.error(err);
@@ -101,16 +104,30 @@ const EventInfo = () => {
   const handleFavClick = async (location: Location) => {
     if (!location.userName) return;
 
+    setIsLoading(true);
     try {
       await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/${location.userName}/favourite-venues`,
         { venueId: location.venueId }
       );
-      // Refresh data after successful favorite update
-      fetchData(location.userName);
+
+      // Get updated favorites
+      const favResponse = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/${location.userName}/favourite-venues`
+      );
+
+      // Batch update states
+      setFavList(favResponse.data);
+      setLocations(prev => prev.map(loc => ({
+        ...loc,
+        isFavourite: favResponse.data.includes(loc.venueId)
+      })));
+
     } catch (err) {
       console.error(err);
       setError('Failed to update favorites');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -121,12 +138,20 @@ const EventInfo = () => {
       filteredLocations = locations.filter((loc) => favList.includes(loc.venueId));
     }
 
-    return [...filteredLocations].sort((a, b) => {
+    const sorted = [...filteredLocations].sort((a, b) => {
       if (sortBy === SortBy.Alphabet) {
         return a.venueName.localeCompare(b.venueName);
       }
       return b.eventsCount - a.eventsCount;
     });
+
+    // Update marker list based on filtered and sorted locations
+    setMarkerList(sorted.map((loc) => [
+      parseFloat(loc.latitude),
+      parseFloat(loc.longitude)
+    ]));
+
+    return sorted;
   }, [locations, filterBy, favList, sortBy]);
 
   const handleSelectLocation = (e: ListBoxChangeEvent) => {
@@ -137,6 +162,7 @@ const EventInfo = () => {
         parseFloat(location.latitude),
         parseFloat(location.longitude),
       ]);
+      setZoom(17); // Set zoom level to 17 when location selected
       setLocations(
         locations.map((loc) => ({
           ...loc,
@@ -213,7 +239,7 @@ const EventInfo = () => {
           />
         )}
         <div className="relative w-full">
-          <Map posix={marker} />
+          <Map posix={marker} markerList={markerList} zoom={zoom} locations={sortedLocations} />
           <div>
             {/* <CommentForm locationId={selectedLocation?._id || ""} />
             <CommentList locationId={selectedLocation?._id || ""} /> */}

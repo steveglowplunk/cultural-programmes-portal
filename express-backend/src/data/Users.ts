@@ -27,12 +27,7 @@ export const users = [
     "username": "testuser1",
     "email": "testuser1@example.com",
     "password": "password123",
-    "favouriteVenues": [
-      "87310051",
-      "36310035",
-      "76810048",
-      "87110023"
-    ],
+    "favouriteVenues": [],
     "role": "normal"
   },
   {
