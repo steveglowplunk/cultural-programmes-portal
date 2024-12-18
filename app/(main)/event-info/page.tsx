@@ -2,7 +2,6 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/router";
 import { ListBox, ListBoxChangeEvent } from "primereact/listbox";
 import axios from "axios";
 import { Location } from "@/app/definitions/types";
@@ -10,9 +9,9 @@ import LocationItem from "@/components/event/LocationItem";
 import { LatLngExpression, LatLngTuple } from "leaflet";
 import LocationDetailsPanel from "@/components/event/LocationDetailsPanel";
 import withAuth from "@/app/withAuth";
-import CommentForm from "@/components/comment/CommentForm";
 import CommentList from "@/components/comment/CommentList";
 import { Button } from "primereact/button";
+import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
 
 const EventInfo = () => {
   const Map = useMemo(
@@ -52,6 +51,20 @@ const EventInfo = () => {
   const [filterBy, setFilterBy] = useState<FilterBy>(FilterBy.All);
   const [zoom, setZoom] = useState<number>(11);
   const [isShowComments, setIsShowComments] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<any>();
+
+  const categoryList = [
+    { name: "Concert Hall" },
+    { name: "Cinema" },
+    { name: "Theatre" },
+    { name: "Auditorium" },
+    { name: "Cultural Activities Hall" }
+  ];
+
+  const handleChangeCategory = (e: DropdownChangeEvent) => {
+    setSelectedCategory(e.value);
+    console.log("selectedCategory", selectedCategory);
+  }
 
   // Load user data once on mount
   useEffect(() => {
@@ -137,10 +150,22 @@ const EventInfo = () => {
   const sortedLocations = useMemo(() => {
     let filteredLocations = locations;
 
+    // First filter by category if selected
+    if (selectedCategory) {
+      filteredLocations = filteredLocations.filter((loc) =>
+        loc.venueName.includes(selectedCategory.name)
+      );
+    }
+    console.log("filteredLocations", filteredLocations);
+
+    // Then filter by favorites if needed
     if (filterBy === FilterBy.Favourite) {
-      filteredLocations = locations.filter((loc) => favList.includes(loc.venueId));
+      filteredLocations = filteredLocations.filter((loc) =>
+        favList.includes(loc.venueId)
+      );
     }
 
+    // Sort the filtered results
     const sorted = [...filteredLocations].sort((a, b) => {
       if (sortBy === SortBy.Alphabet) {
         return a.venueName.localeCompare(b.venueName);
@@ -155,7 +180,7 @@ const EventInfo = () => {
     ]));
 
     return sorted;
-  }, [locations, filterBy, favList, sortBy]);
+  }, [locations, filterBy, favList, sortBy, selectedCategory]);
 
   const handleSelectLocation = (e: ListBoxChangeEvent) => {
     const location = e.value as Location;
@@ -232,6 +257,8 @@ const EventInfo = () => {
                 </button>
               </div>
             </div>
+            <Dropdown value={selectedCategory} onChange={handleChangeCategory} options={categoryList} optionLabel="name"
+              showClear placeholder="Select a Category" className="w-full md:w-14rem mb-2" />
             <div className="w-96 h-[500px] overflow-y-auto">
               <ListBox
                 filter

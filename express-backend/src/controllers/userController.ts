@@ -104,7 +104,7 @@ export class UserController {
         },
         {
           $match: {
-            "events.cat2": category,
+            "events.cat1": category,
           },
         },
         {

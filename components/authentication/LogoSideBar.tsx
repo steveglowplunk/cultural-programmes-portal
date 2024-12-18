@@ -11,7 +11,7 @@ const LogoSideBar = () => {
         className='relative -left-[35%] top-[40%] scale-150 opacity-25'
       />
       <p className='absolute text-5xl font-extralight left-10'>
-        LCSD Cultural Programmes Portal
+        Cultural Programmes Portal
       </p>
     </div>
   )

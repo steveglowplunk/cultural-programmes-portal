@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { PrimeReactProvider } from 'primereact/api';
-import "primereact/resources/themes/lara-light-cyan/theme.css";
+// import "primereact/resources/themes/lara-light-cyan/theme.css";
 import { Source_Sans_3 } from "next/font/google";
 import { AuthContextProvider } from "@/providers/auth-provider";
 import "@/theme/custom-styles.css";
@@ -17,6 +17,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <head>
+        <link
+          id="theme-link"
+          rel="stylesheet"
+          href="/theme/lara-light-cyan/theme.css"
+        />
         <script
           dangerouslySetInnerHTML={{
             __html: `
