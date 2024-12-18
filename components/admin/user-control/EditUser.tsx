@@ -8,7 +8,7 @@ const EditUser = ({userId}:{userId: string}) => {
   return (
     <>
       <Button
-        label="Create Promo Code"
+        label="Edit User"
         icon="pi pi-user-edit"
         className="mr-2 p-button-sm "
         severity="warning"

@@ -4,14 +4,18 @@ import { useState } from 'react'
 import { ConfirmDialog } from 'primereact/confirmdialog';
 import axios from 'axios';
 
+interface DeleteUserProps {
+  userId: string;
+  onDeleteSuccess: () => void;
+}
 
-
-const DeleteUser = ({userId}:{userId:string}) => {
+const DeleteUser = ({ userId, onDeleteSuccess }: DeleteUserProps) => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState<boolean>(false)
   const handleDelete = async () => {
     try {
-      await axios.delete( process.env.NEXT_PUBLIC_BACKEND_URL +`/admin/users/${userId}`);
+      await axios.delete(process.env.NEXT_PUBLIC_BACKEND_URL + `/admin/users/${userId}`);
       setIsDeleteDialogOpen(false);
+      onDeleteSuccess();
       // Optionally, you can add a callback to refresh the user list or show a success message
     } catch (err) {
       console.log(err);
@@ -38,7 +42,7 @@ const DeleteUser = ({userId}:{userId:string}) => {
         accept={handleDelete}
         reject={() => setIsDeleteDialogOpen(false)}
       />
-      
+
     </>
   )
 }
