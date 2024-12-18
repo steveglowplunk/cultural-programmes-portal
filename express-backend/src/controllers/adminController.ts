@@ -29,7 +29,7 @@ export class AdminController {
 
   async getUserById(req: Request, res: Response) {
     try {
-      const user = await User.findById(req.params.id);
+      const user = await User.findOne({ username: req.params.id });
       if (!user) {
         return res.status(404).send();
       }
@@ -39,20 +39,20 @@ export class AdminController {
     }
   }
 
-  async updateUser(req: Request, res: Response) {
-    try {
-      const user = await User.findByIdAndUpdate(req.params.id, req.body, {
-        new: true,
-        runValidators: true,
-      });
-      if (!user) {
-        return res.status(404).send();
-      }
-      res.status(200).send(user);
-    } catch (error) {
-      res.status(400).send(error);
-    }
-  }
+  // async updateUser(req: Request, res: Response) {
+  //   try {
+  //     const user = await User.findByIdAndUpdate(req.params.id, req.body, {
+  //       new: true,
+  //       runValidators: true,
+  //     });
+  //     if (!user) {
+  //       return res.status(404).send();
+  //     }
+  //     res.status(200).send(user);
+  //   } catch (error) {
+  //     res.status(400).send(error);
+  //   }
+  // }
 
   async deleteUser(req: Request, res: Response) {
     try {
@@ -138,7 +138,24 @@ export class AdminController {
       res.status(400).send(error);
     }
   }
-
+  async updateUser(req: Request, res: Response) {
+    try {
+      const user = await User.findOneAndUpdate(
+        { username: req.params.id },
+        req.body,
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
+      if (!user) {
+        return res.status(404).send();
+      }
+      res.status(200).send(user);
+    } catch (error) {
+      res.status(400).send(error);
+    }
+  }
   async deleteEvent(req: Request, res: Response) {
     try {
       const event = await Event.findByIdAndDelete(req.params.id);
