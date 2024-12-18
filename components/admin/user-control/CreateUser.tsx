@@ -5,23 +5,23 @@ import { Dispatch, SetStateAction, useState } from 'react';
 import axios from 'axios';
 import { Password } from 'primereact/password';
 
-const CreateUser = ({ isDialogOpen, setIsDialogOpen }: {isDialogOpen: boolean, setIsDialogOpen: Dispatch<SetStateAction<boolean>>}) => {
-    const [username, setUsername] = useState('');
-    const [name, setName] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [error, setError] = useState('');
-    const [bIsSignupLoading, setBIsSignupLoading] = useState(false);
+const CreateUser = ({ isDialogOpen, setIsDialogOpen }: { isDialogOpen: boolean, setIsDialogOpen: Dispatch<SetStateAction<boolean>> }) => {
+  const [username, setUsername] = useState('');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
+  const [bIsSignupLoading, setBIsSignupLoading] = useState(false);
 
-//   const handleSubmit = async () => {
-//     try {
-//       await axios.post('/admin/users', {username, name, email, password });
-//       setIsDialogOpen(false);
-//     } catch (error) {
-//       console.error(error);
-//     }
-//   };
+  //   const handleSubmit = async () => {
+  //     try {
+  //       await axios.post('/admin/users', {username, name, email, password });
+  //       setIsDialogOpen(false);
+  //     } catch (error) {
+  //       console.error(error);
+  //     }
+  //   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,11 +31,11 @@ const CreateUser = ({ isDialogOpen, setIsDialogOpen }: {isDialogOpen: boolean, s
     }
     setBIsSignupLoading(true);
     try {
-        console.log('username', username);
-        console.log('name', name);
-        console.log('email', email);
-        console.log('password', password);
-      await axios.post( process.env.NEXT_PUBLIC_BACKEND_URL +'/admin/users', { username, name, email, password });
+      console.log('username', username);
+      console.log('name', name);
+      console.log('email', email);
+      console.log('password', password);
+      await axios.post(process.env.NEXT_PUBLIC_BACKEND_URL + '/admin/users', { username, name, email, password });
       setIsDialogOpen(false);
     } catch (error) {
       console.error(error);
@@ -45,30 +45,54 @@ const CreateUser = ({ isDialogOpen, setIsDialogOpen }: {isDialogOpen: boolean, s
     }
   };
 
-
-
   return (
-    <Dialog header="Create User" visible={isDialogOpen} onHide={() => setIsDialogOpen(false)}>
-        <form onSubmit={handleSubmit}>
-        <div className="p-field">
-          <label htmlFor="username">Username</label>
-          <InputText id="username" value={username} onChange={(e) => setUsername(e.target.value)} required />
+    <Dialog header="Create User" visible={isDialogOpen} onHide={() => setIsDialogOpen(false)} className='w-[30rem]'>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <p className="text-2xl">Username</p>
+          <InputText
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+            className="w-full"
+          />
         </div>
-        <div className="p-field">
-          <label htmlFor="name">Name</label>
-          <InputText id="name" value={name} onChange={(e) => setName(e.target.value)} required />
+        <div>
+          <p className="text-2xl">Email</p>
+          <InputText
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className="w-full"
+          />
         </div>
-        <div className="p-field">
-          <label htmlFor="email">Email</label>
-          <InputText id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+        <div>
+          <p className="text-2xl">Password</p>
+          <Password
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            className="w-full [&>*:first-child]:w-full"
+            toggleMask
+            pt={{
+              input: { className: "w-full" },
+            }}
+          />
         </div>
-        <div className="p-field">
-          <label htmlFor="password">Password</label>
-          <Password id="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-        </div>
-        <div className="p-field">
-          <label htmlFor="confirmPassword">Confirm Password</label>
-          <Password id="confirmPassword" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
+        <div>
+          <p className="text-2xl">Confirm Password</p>
+          <Password
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+            className="w-full [&>*:first-child]:w-full"
+            toggleMask
+            pt={{
+              input: { className: "w-full" },
+            }}
+          />
         </div>
         <Button type="submit" label="Sign Up" loading={bIsSignupLoading} />
       </form>

@@ -56,13 +56,13 @@ export const comments = [
   {
     "venue_id": "87510008",
     "username": "admin",
-    "text": "fkkkkkkkkkkkkkk",
+    "text": "",
     "date": "2024-12-18T11:46:37.985Z"
   },
   {
     "venue_id": "3110031",
     "username": "admin",
-    "text": "dkkkkkkkkk",
+    "text": "",
     "date": "2024-12-18T11:46:55.028Z"
   },
   {
@@ -180,30 +180,6 @@ export const comments = [
     "date": "2024-12-18T12:17:02.961Z"
   },
   {
-    "venue_id": "87510008",
-    "username": "admin",
-    "text": "fk u",
-    "date": "2024-12-18T12:18:37.374Z"
-  },
-  {
-    "venue_id": "87510008",
-    "username": "admin",
-    "text": "helllolololo",
-    "date": "2024-12-18T12:20:14.791Z"
-  },
-  {
-    "venue_id": "87510008",
-    "username": "admin",
-    "text": "fk u",
-    "date": "2024-12-18T12:21:59.453Z"
-  },
-  {
-    "venue_id": "87510008",
-    "username": "admin",
-    "text": "abcc",
-    "date": "2024-12-18T12:27:42.843Z"
-  },
-  {
     "venue_id": "75010017",
     "username": "testuser1",
     "text": "hi",
@@ -220,5 +196,11 @@ export const comments = [
     "username": "testuser1",
     "text": "helo",
     "date": "2024-12-18T13:21:39.623Z"
+  },
+  {
+    "venue_id": "87610118",
+    "username": "mytester",
+    "text": "my comment",
+    "date": "2024-12-18T13:42:00.943Z"
   }
 ];

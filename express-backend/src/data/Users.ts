@@ -92,5 +92,12 @@ export const users = [
     "password": "1234TAT",
     "favouriteLocations": [],
     "role": "admin"
+  },
+  {
+    "username": "mytester",
+    "email": "mytester@test.com",
+    "password": "123456789",
+    "favouriteVenues": [],
+    "role": "normal"
   }
 ];
