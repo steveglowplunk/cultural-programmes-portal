@@ -85,7 +85,8 @@ const SignupBox = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full"
+              className="w-full [&>*:first-child]:w-full"
+              toggleMask
               pt={{
                 input: { className: "w-full" },
               }}
@@ -97,7 +98,8 @@ const SignupBox = () => {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
-              className="w-full"
+              className="w-full [&>*:first-child]:w-full"
+              toggleMask
               pt={{
                 input: { className: "w-full" },
               }}
