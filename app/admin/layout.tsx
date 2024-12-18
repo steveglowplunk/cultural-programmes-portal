@@ -5,9 +5,9 @@ import AdminNavbar from '@/components/admin/AdminNavbar'
 
 const AdminLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="min-h-screen flex flex-co">
+    <div className="min-h-screen flex flex-col">
         <NavBar />
-        <main className="flex-1 p-4 flex-row">
+        <main className="flex-1 flex-row flex h-[calc(100vh-6rem)]">
           <AdminNavbar />
             {children}
         </main>

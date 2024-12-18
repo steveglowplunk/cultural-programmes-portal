@@ -87,7 +87,6 @@ const AdminPage = () => {
   return (
     <div>
       <h1>Admin Page</h1>
-      <p>This is the admin page.</p>
       {/* 其他頁面內容 */}
       <div>
         <h2>Create New Event</h2>

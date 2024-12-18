@@ -290,7 +290,7 @@ export class UserController {
           console.log('User index:', userIndex);
           if (userIndex !== -1) {
             // Update the user's favouriteVenues in the users array
-            users[userIndex].favouriteVenues.push(venueId); // Ensure favouriteVenues is an array of strings
+            // users[userIndex].favouriteVenues.push(venueId); // Ensure favouriteVenues is an array of strings
             // Write the updated user data to the file
             fs.writeFileSync(usersFilePath, `export const users = ${JSON.stringify(users, null, 2)};`);
             console.log('Updated user data written to file');

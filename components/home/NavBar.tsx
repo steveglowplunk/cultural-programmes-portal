@@ -14,15 +14,12 @@ const NavBar = () => {
   };
   const [userData, setUserData] = useState<{ role: string; username: string } | null>(null);
 
-  const storedUserData = localStorage.getItem("userData");
   useEffect(() => {
     const storedUserData = localStorage.getItem("userData");
-    console.log("storedUserData:", storedUserData);
     if (storedUserData) {
       setUserData(JSON.parse(storedUserData));
     }
   }, []);
-  console.log("userData:", userData);
   return (
     <nav className="flex h-24 items-center space-x-2 justify-between px-4 shadow-md">
       <div className="flex h-full items-center space-x-4">
