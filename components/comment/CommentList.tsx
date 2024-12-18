@@ -8,7 +8,7 @@ interface Comment {
   date: string;
 }
 
-const CommentList = ({ locationId }: { locationId: string }) => {
+const CommentList = ({ locationId, refresh }: { locationId: string, refresh: boolean }) => {
   const [comments, setComments] = useState<Comment[]>([]);
 
   useEffect(() => {
@@ -22,7 +22,6 @@ const CommentList = ({ locationId }: { locationId: string }) => {
           "the access URL:",
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/comments/location/${locationId}`
         );
-        //console.log("Received comments:", response.data);
         response.data.forEach((comment: Comment, index: number) => {
           console.log(`Comment ${index + 1}:`, comment);
         });
@@ -33,7 +32,7 @@ const CommentList = ({ locationId }: { locationId: string }) => {
     };
 
     fetchComments();
-  }, [locationId]);
+  }, [locationId, refresh]); // Re-fetch comments when locationId or refresh changes
 
   return (
     <div>

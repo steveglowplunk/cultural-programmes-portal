@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from "express";
 import { comments } from "../data/Comments";
 import fs from "fs";
 import path from "path";
+import mongoose from "mongoose";
+import {Comment} from "../models/Comment"; // Import the Comment model
 
 export const addComment = async (
   req: Request,
@@ -19,7 +21,13 @@ export const addComment = async (
     // 將新評論添加到 comments 數組中
     const commentsFilePath = path.join(__dirname, "../data/Comments.ts");
     comments.push(newComment);
-
+    const datacomment = new Comment({
+      user: username.toString(),
+      location: locationId.toString(),
+      text: text.toString(),
+      createdAt: new Date(date).toISOString(),
+    });
+    await datacomment.save();
     // 將評論數據寫入 Comments.ts 文件
 
     const commentsFileContent = `export const comments = ${JSON.stringify(

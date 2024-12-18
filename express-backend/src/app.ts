@@ -326,34 +326,40 @@ db.once("open", function () {
           .replace("export const comments = ", "")
           .replace(";", "")
       );
-
-      // 清空現有的評論數據
+  
+      // Clear existing comment data
       await Comment.deleteMany({});
-
-      // 插入新的評論數據
+  
+      // Insert new comment data
       for (const comment of commentsData) {
-        console.log(comment.username);
-        console.log(comment.venue_Id);
-        if (comment.username && comment.venue_Id) {
-          console.log(
-            "User and Location found for comment:",
-            comment.username,
-            location
-          );
-          const newComment = new Comment({
-            user: comment.username,
-            location: comment.venue_Id,
-            text: comment.text,
-            createdAt: new Date(comment.date),
-          });
-          await newComment.save();
+        if (comment.username && comment.venue_id) {
+          // Validate ObjectId
+          if (comment.username && comment.venue_id) {
+            console.log(
+              "User and Location found for comment:",
+              comment.username,
+              comment.venue_id
+            );
+            const newComment = new Comment({
+              user: comment.username, // Ensure this is a valid ObjectId
+              location: comment.venue_id, // Ensure this is a valid ObjectId
+              text: comment.text,
+              createdAt: new Date(comment.date),
+            });
+            console.log("New Comment:", newComment);
+            await newComment.save();
+          } else {
+            console.warn(
+              `Invalid ObjectId for User or Location: ${comment.username}, ${comment.venue_id}`
+            );
+          }
         } else {
           console.warn(
             `User or Location not found for comment: ${comment.text}`
           );
         }
       }
-
+  
       console.log("Comments successfully loaded into the database");
     } catch (err) {
       console.error("Error processing comment data:", err);
@@ -687,7 +693,7 @@ db.once("open", function () {
   setAdminRoutes(app); // Set up admin routes
   setCommentRoutes(app); // Set up comment routes
   setUserRoutes(app); // Set up user routes
-  filterLocationsByEventCategory("inc4sc5");
+  //filterLocationsByEventCategory("inc4sc5");
   // getAllEventCategories().then(categories => {
   //   console.log(categories);
   // }).catch(err => {
@@ -697,7 +703,7 @@ db.once("open", function () {
   //likeEvent("166357");
   //searchLocationByKeyword("Kowloon");
 
-  getFavouriteVenues("admin");
+  //getFavouriteVenues("admin");
   app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
   });
