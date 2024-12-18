@@ -293,80 +293,66 @@ export class UserController {
     const { venueId } = req.body;
 
     try {
+
+      console.log(usersFilePath);
       // Check if the user exists
       const userExists = await User.findOne({ username: username });
       if (!userExists) {
         console.log(`User with username ${username} does not exist`);
-        return res
-          .status(404)
-          .send({ success: false, message: "User not found" });
+        return res.status(404).send({ success: false, message: 'User not found' });
       }
 
       // Check if the venueId is already in favouriteVenues
       if (userExists.favouriteVenues.includes(venueId)) {
-        console.log(
-          `VenueId ${venueId} is already in the favouriteVenues array for user ${username}`
-        );
+        console.log(`VenueId ${venueId} is already in the favouriteVenues array for user ${username}`);
         // Remove the venueId from favouriteVenues
-        const result = await User.updateOne(
+        const updatedFavouriteVenues = userExists.favouriteVenues.filter(id => id !== venueId);
+        await User.updateOne(
           { username: username },
-          { $pull: { favouriteVenues: venueId } }
+          { $set: { favouriteVenues: updatedFavouriteVenues } }
         );
 
-        if (result.modifiedCount === 0) {
-          console.log("User not found or favouriteVenues not updated");
-          return res.status(500).send({
-            success: false,
-            message: "Failed to remove venue from favourite venues",
-          });
-        }
-
-        // Write the updated user data to the file
-        const updatedUser = await User.findOne({ username: username });
-        if (updatedUser) {
-          const users = await User.find({});
+        // Update the users array and write to file
+        const userIndex = users.findIndex(user => user.username === username);
+        if (userIndex !== -1) {
+          users[userIndex].favouriteVenues = updatedFavouriteVenues;
           fs.writeFileSync(usersFilePath, `export const users = ${JSON.stringify(users, null, 2)};`);
-          console.log('Updated user data written to file');
         }
 
-        return res.status(200).send({
-          success: true,
-          message: "Venue removed from favourite venues",
-        });
+        console.log(`VenueId ${venueId} removed from the favouriteVenues array for user ${username}`);
+        return res.status(200).send({ success: true, message: 'Venue removed from favourite venues' });
       }
 
-      // Add the venueId to favouriteVenues
       const result = await User.updateOne(
         { username: username },
         { $addToSet: { favouriteVenues: venueId } }
       );
 
       if (result.modifiedCount === 0) {
-        console.log("User not found or favouriteVenues not updated");
-        return res.status(500).send({
-          success: false,
-          message: "Failed to add venue to favourite venues",
-        });
-      }
+        console.log('User not found or favouriteVenues not updated');
+        return res.status(500).send({ success: false, message: 'User not found or favouriteVenues not updated' });
+      } else {
+        console.log('User favouriteVenues updated successfully');
 
-      // Write the updated user data to the file
-      const updatedUser = await User.findOne({ username: username });
-      if (updatedUser) {
-        const users = await User.find({});
-        fs.writeFileSync(usersFilePath, `export const users = ${JSON.stringify(users, null, 2)};`);
-        console.log('Updated user data written to file');
+        // Fetch the updated user data
+        const updatedUser = await User.findOne({ username: username });
+        if (updatedUser) {
+          // Find the index of the user in the users array
+          const userIndex = users.findIndex(user => user.username === username);
+          console.log('User index:', userIndex);
+          if (userIndex !== -1) {
+            // Update the user's favouriteVenues in the users array
+            users[userIndex].favouriteVenues.push(venueId); // Ensure favouriteVenues is an array of strings
+            // Write the updated user data to the file
+            fs.writeFileSync(usersFilePath, `export const users = ${JSON.stringify(users, null, 2)};`);
+            console.log('Updated user data written to file');
+          }
+        }
+        return res.status(200).send({ success: true, message: 'User favouriteVenues updated successfully' });
       }
-
-      return res.status(200).send({
-        success: true,
-        message: "Venue added to favourite venues",
-      });
     } catch (err) {
-      console.error("Error updating user favourite venues:", err);
-      return res.status(500).send({
-        success: false,
-        message: "An error occurred while updating favourite venues",
-      });
+      console.error('Error updating user favourite venues:', err);
+      return res.status(500).send({ success: false, message: 'Internal server error' });
     }
   }
   async getFavouriteVenues(req: Request, res: Response) {
