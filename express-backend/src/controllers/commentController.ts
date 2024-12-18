@@ -1,53 +1,40 @@
-import { Request, Response } from 'express';
-import { Comment } from '../models/Comment';
-import { Location } from '../models/Location';
-import { User } from '../models/User';
+import { Request, Response, NextFunction } from "express";
+import { comments } from "../data/Comments";
 
-export const createComment = async (req: Request, res: Response) => {
-    try {
-        const { userId, locationId, text } = req.body;
-        const location = await Location.findById(locationId);
-        if (!location) {
-            return res.status(404).send('Location not found');
-        }
+export const addComment = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { userId, locationId, text } = req.body;
+    const newComment = {
+      venue_id: locationId,
+      username: userId, // 假設 userId 是 username，這裡可能需要根據實際情況調整
+      text,
+      date: new Date(),
+    };
 
-        const user = await User.findById(userId);
-        if (!user) {
-            return res.status(404).send('User not found');
-        }
-
-        const comment = new Comment({
-            user: userId,
-            location: locationId,
-            text,
-        });
-
-        await comment.save();
-        res.status(201).send(comment);
-    } catch (error) {
-        res.status(400).send(error);
-    }
+    // 將新評論添加到 comments 數組中
+    comments.push(newComment);
+    res.status(201).send(newComment);
+  } catch (error) {
+    next(error); // 將錯誤傳遞給 Express 的錯誤處理中間件
+  }
 };
 
-export const getCommentsByLocation = async (req: Request, res: Response) => {
-    try {
-        const { locationId } = req.params;
-        const comments = await Comment.find({ location: locationId }).populate('user', 'username');
-        res.status(200).send(comments);
-    } catch (error) {
-        res.status(400).send(error);
-    }
-};
-
-export const deleteComment = async (req: Request, res: Response) => {
-    try {
-        const { commentId } = req.params;
-        const comment = await Comment.findByIdAndDelete(commentId);
-        if (!comment) {
-            return res.status(404).send('Comment not found');
-        }
-        res.status(200).send(comment);
-    } catch (error) {
-        res.status(500).send(error);
-    }
+export const getCommentsByLocation = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { locationId } = req.params;
+    const locationComments = comments.filter(
+      (comment) => comment.venue_id === locationId
+    );
+    res.status(200).send(locationComments);
+  } catch (error) {
+    next(error); // 將錯誤傳遞給 Express 的錯誤處理中間件
+  }
 };

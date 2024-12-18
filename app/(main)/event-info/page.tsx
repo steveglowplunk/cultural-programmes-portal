@@ -10,6 +10,8 @@ import LocationItem from "@/components/event/LocationItem";
 import { LatLngExpression, LatLngTuple } from "leaflet";
 import LocationDetailsPanel from "@/components/event/LocationDetailsPanel";
 import withAuth from "@/app/withAuth";
+import CommentForm from "@/components/comment/CommentForm";
+import CommentList from "@/components/comment/CommentList";
 
 const EventInfo = () => {
   const Map = useMemo(
@@ -22,13 +24,13 @@ const EventInfo = () => {
   );
 
   enum SortBy {
-    Alphabet = 'alphabet',
-    EventCount = 'eventCount'
+    Alphabet = "alphabet",
+    EventCount = "eventCount",
   }
 
   enum SideBarPage {
-    VenueList = 'venueList',
-    VenueInfo = 'venueInfo'
+    VenueList = "venueList",
+    VenueInfo = "venueInfo",
   }
 
   const [locations, setLocations] = useState<Location[]>([]);
@@ -44,14 +46,21 @@ const EventInfo = () => {
   useEffect(() => {
     const fetchVenues = async () => {
       try {
-        await axios.get(process.env.NEXT_PUBLIC_BACKEND_URL + "/api/locations/top10").then((res) => {
-          const locationsWithSelection = res.data.map((location: Location) => ({
-            ...location,
-            isSelected: false,
-            onShowDetails: handleShowDetails
-          }));
-          setLocations(locationsWithSelection);
-        });
+        await axios
+          .get(
+            process.env.NEXT_PUBLIC_BACKEND_URL +
+              "/api/locations/more-than-3-events"
+          )
+          .then((res) => {
+            const locationsWithSelection = res.data.map(
+              (location: Location) => ({
+                ...location,
+                isSelected: false,
+                onShowDetails: handleShowDetails,
+              })
+            );
+            setLocations(locationsWithSelection);
+          });
       } catch (err) {
         console.log(err);
       }
@@ -75,13 +84,18 @@ const EventInfo = () => {
     const location = e.value as Location;
     if (location && location.latitude && location.longitude) {
       setSelectedLocation(location);
-      setMarker([parseFloat(location.latitude), parseFloat(location.longitude)]);
-      setLocations(locations.map((loc) => ({
-        ...loc,
-        isSelected: loc._id === location._id
-      })));
+      setMarker([
+        parseFloat(location.latitude),
+        parseFloat(location.longitude),
+      ]);
+      setLocations(
+        locations.map((loc) => ({
+          ...loc,
+          isSelected: loc._id === location._id,
+        }))
+      );
     }
-  }
+  };
 
   const handleShowDetails = (location: Location) => {
     console.log("Show details for:", location);
@@ -90,7 +104,7 @@ const EventInfo = () => {
 
   const handleOnBack = () => {
     setPage(SideBarPage.VenueList);
-  }
+  };
 
   return (
     <>
@@ -101,13 +115,19 @@ const EventInfo = () => {
               <span className="mr-4">Sort by: </span>
               <div className="space-x-2">
                 <button
-                  className={`hover:underline ${sortBy === SortBy.Alphabet ? 'font-bold text-cyan-700' : ''}`}
+                  className={`hover:underline ${
+                    sortBy === SortBy.Alphabet ? "font-bold text-cyan-700" : ""
+                  }`}
                   onClick={() => setSortBy(SortBy.Alphabet)}
                 >
                   Alphabet
                 </button>
                 <button
-                  className={`hover:underline ${sortBy === SortBy.EventCount ? 'font-bold text-cyan-700' : ''}`}
+                  className={`hover:underline ${
+                    sortBy === SortBy.EventCount
+                      ? "font-bold text-cyan-700"
+                      : ""
+                  }`}
                   onClick={() => setSortBy(SortBy.EventCount)}
                 >
                   Event count
@@ -115,13 +135,28 @@ const EventInfo = () => {
               </div>
             </div>
             <div className="w-96 h-[600px] overflow-y-auto">
-              <ListBox filter value={selectedLocation} onChange={(e: ListBoxChangeEvent) => handleSelectLocation(e)}
-                options={sortedLocations} itemTemplate={LocationItem} />
+              <ListBox
+                filter
+                value={selectedLocation}
+                onChange={(e: ListBoxChangeEvent) => handleSelectLocation(e)}
+                options={sortedLocations}
+                itemTemplate={LocationItem}
+                optionLabel="venueName"
+              />
             </div>
           </div>
-        ) : (<LocationDetailsPanel onBack={handleOnBack} location={selectedLocation} />)}
+        ) : (
+          <LocationDetailsPanel
+            onBack={handleOnBack}
+            location={selectedLocation}
+          />
+        )}
         <div className="relative w-full">
           <Map posix={marker} />
+          <div>
+            <CommentForm locationId={selectedLocation?._id || ""} />
+            <CommentList locationId={selectedLocation?._id || ""} />
+          </div>
         </div>
       </div>
     </>
