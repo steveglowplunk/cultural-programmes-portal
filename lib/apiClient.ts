@@ -1,3 +1,8 @@
+import { use } from "react";
+
+
+
+
 export const apiClient = {
   auth: {
     signup: async ({ body }: { body: { username: string; email: string; password: string } }) => {
@@ -18,7 +23,7 @@ export const apiClient = {
       // Placeholder implementation
       return { status: 200 };
     },
-    validate: async () => {
+    validate: async ( ) => {
       // Placeholder implementation
       return {
         body: {
@@ -38,11 +43,14 @@ export const apiClient = {
   user: {
     getInfo: async () => {
       // Placeholder implementation, hardcoded user info, replace this with data from db
+    
+
+     
       return {
         body: {
-          username: 'testuser',
-          email: 'test@testmail.com',
-          role: 'USER',
+          username: "hi",
+          email: "hi",
+          role: "user",
         },
         status: 200,
       };

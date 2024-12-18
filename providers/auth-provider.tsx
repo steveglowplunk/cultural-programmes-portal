@@ -14,7 +14,7 @@ import React, {
 type PersonalUserInfo = {
   username: string;
   email: string;
-  role: "USER" | "ADMIN";
+  role: "user" | "admin";
 };
 
 type AuthContextProviderProps = {
@@ -58,7 +58,7 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
     const userInfo = await getUserInfo();
     if (!("error" in userInfo)) {
       const { username, email, role } = userInfo;
-      if (role === "USER" || role === "ADMIN") {
+      if (role === "user" || role === "admin") {
         const personalUserInfo: PersonalUserInfo = { username, email, role };
         setUserInfo(personalUserInfo);
         return personalUserInfo;

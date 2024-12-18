@@ -20,16 +20,24 @@ export class AuthController {
 
       if (user) {
         const token = jwt.sign(
-          { id: user._id, email: user.email, role: user.role }, // 包含角色信息
+          { id: user._id, email: user.email, role: user.role, favorite: user.favouriteVenues
+          }, // 包含角色信息
           SECRET_KEY,
           { expiresIn: "1h" }
-        );
+        )
+        //if user is admin, set userId for getting the stuff from the database later( can add more stuff later)
+        const userObject ={
+          role: user.role,
+          userId: user._id,
+        }
+      
         console.log("Generated Token:", token); // 打印生成的 JWT
         console.log("User role:", user.role); // 打印用戶角色
         res.status(200).send({
           success: true,
           message: "Login successful",
           token,
+          userObject,
           redirectUrl:
             user.role === "admin"
               ? "http://localhost:3000/admin"

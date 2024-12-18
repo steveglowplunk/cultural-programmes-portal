@@ -83,10 +83,17 @@ export const users = [
     "role": "normal"
   },
   {
-    "username": "13223121",
-    "email": "41223r1@vfds.com",
-    "password": "123456",
-    "favouriteVenues": [],
-    "role": "normal"
+    username: "13223121",
+    email: "41223r1@vfds.com",
+    password: "123456",
+    favouriteVenues: [],
+    role: "normal",
+  },
+  {
+    username: "I am become death destroyer of world",
+    email: "nuclear@bomb.com",
+    password: "1234TAT",
+    favouriteLocations: [],
+    role: "admin",
   }
 ];
