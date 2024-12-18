@@ -249,12 +249,12 @@ const EventInfo = () => {
             location={selectedLocation}
           />
         )}
-        <div className="relative w-full max-h-[550px]">
+        <div className="relative w-full max-h-[600px]">
           <Map posix={marker} markerList={markerList} zoom={zoom} locations={sortedLocations} />
         </div>
-        <div className="ml-4">
+        <div>
           {selectedLocation && isShowComments && (
-            <div>
+            <div className="ml-4 h-[600px] overflow-y-auto overflow-x-visible">
               <Button
                 icon="pi pi-times"
                 severity="secondary"
@@ -263,11 +263,7 @@ const EventInfo = () => {
                 aria-label="Close"
                 onClick={() => setIsShowComments(false)}
               />
-              <CommentForm
-                locationId={selectedLocation.venueId}
-                username={userData?.username}
-              />
-              <CommentList locationId={selectedLocation.venueId} />
+              <CommentList locationId={selectedLocation.venueId} username={userData?.username as string} />
             </div>
           )}
         </div>

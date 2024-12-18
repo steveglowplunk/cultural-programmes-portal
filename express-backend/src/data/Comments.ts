@@ -208,5 +208,17 @@ export const comments = [
     "username": "testuser1",
     "text": "hi",
     "date": "2024-12-18T13:13:03.210Z"
+  },
+  {
+    "venue_id": "75010017",
+    "username": "testuser1",
+    "text": "hello again",
+    "date": "2024-12-18T13:20:22.664Z"
+  },
+  {
+    "venue_id": "87610118",
+    "username": "testuser1",
+    "text": "helo",
+    "date": "2024-12-18T13:21:39.623Z"
   }
 ];

@@ -56,45 +56,57 @@ const SignupBox = () => {
   };
 
   return (
-    <div>
-      <form onSubmit={handleSignup}>
-        <div>
-          <label>Username:</label>
-          <InputText
-            type="text"
-            value={userName}
-            onChange={(e) => setUserName(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label>Email:</label>
-          <InputText
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label>Password:</label>
-          <Password
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label>Confirm Password:</label>
-          <Password
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-          />
-        </div>
-        <Button type="submit" label="Sign Up" loading={bIsSignupLoading} />
-      </form>
-      {error && <p>{error}</p>}
+    <div className="flex md:w-2/3 items-center justify-center">
+      <div className="flex flex-col p-12 md:w-[34rem] h-fit custom-shadow-border rounded-[50px]">
+        <form onSubmit={handleSignup} className="space-y-4">
+          <div>
+            <p className="text-2xl">Username</p>
+            <InputText
+              type="text"
+              value={userName}
+              onChange={(e) => setUserName(e.target.value)}
+              required
+              className="w-full"
+            />
+          </div>
+          <div>
+            <p className="text-2xl">Email</p>
+            <InputText
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="w-full"
+            />
+          </div>
+          <div>
+            <p className="text-2xl">Password</p>
+            <Password
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="w-full"
+              pt={{
+                input: { className: "w-full" },
+              }}
+            />
+          </div>
+          <div>
+            <p className="text-2xl">Confirm Password</p>
+            <Password
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              className="w-full"
+              pt={{
+                input: { className: "w-full" },
+              }}
+            />
+          </div>
+          <Button type="submit" label="Sign Up" loading={bIsSignupLoading} />
+        </form>
+        {error && <p>{error}</p>}
+      </div>
     </div>
   );
 };
