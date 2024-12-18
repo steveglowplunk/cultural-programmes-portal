@@ -1,10 +1,10 @@
-import { DataTable } from 'primereact/datatable';
-import { Column } from 'primereact/column';
-import { Button } from 'primereact/button';
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import DeleteUser from './DeleteUser';
-import EditUser from './EditUser';
+import { DataTable } from "primereact/datatable";
+import { Column } from "primereact/column";
+import { Button } from "primereact/button";
+import { useState, useEffect } from "react";
+import axios from "axios";
+import DeleteUser from "./DeleteUser";
+import EditUser from "./EditUser";
 
 const UserTable = () => {
   const [users, setUsers] = useState<any[]>([]);
@@ -12,15 +12,17 @@ const UserTable = () => {
 
   const handleUserDeleted = () => {
     // Refresh user list or show a success message
-    console.log('User deleted successfully');
+    console.log("User deleted successfully");
     fetchUsers();
   };
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get(process.env.NEXT_PUBLIC_BACKEND_URL + "/admin/users",); // Use the imported environment variable
+      const response = await axios.get(
+        process.env.NEXT_PUBLIC_BACKEND_URL + "/admin/users"
+      ); // Use the imported environment variable
 
-      console.log('response.data:', response.data)
+      console.log("response.data:", response.data);
       setUsers(response.data);
     } catch (err) {
       console.log(err);
@@ -53,14 +55,20 @@ const UserTable = () => {
   const actionBodyTemplate = (rowData: any) => {
     return (
       <div>
-        <EditUser userId={rowData._id} />
+        <EditUser username={rowData.username} onEditSuccess={() => {}} />
         <DeleteUser userId={rowData._id} onDeleteSuccess={handleUserDeleted} />
       </div>
     );
   };
 
   return (
-    <DataTable value={users} paginator rows={5} rowsPerPageOptions={[5, 10, 25, 50]} tableStyle={{ minWidth: '12rem' }}>
+    <DataTable
+      value={users}
+      paginator
+      rows={5}
+      rowsPerPageOptions={[5, 10, 25, 50]}
+      tableStyle={{ minWidth: "12rem" }}
+    >
       <Column field="username" header="Username" />
       <Column field="email" header="Email" />
       <Column field="password" header="Password" />
