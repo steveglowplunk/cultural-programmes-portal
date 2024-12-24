@@ -8,6 +8,7 @@ const adminController = new AdminController();
 router.post("/users", asyncHandler(adminController.createUser));
 router.get("/users", asyncHandler(adminController.getUsers));
 router.get("/users/:id", asyncHandler(adminController.getUserById));
+router.get("/users/byname/:username", asyncHandler(adminController.getUserByName));
 router.put("/users/:id", asyncHandler(adminController.updateUser));
 router.delete("/users/:id", asyncHandler(adminController.deleteUser));
 

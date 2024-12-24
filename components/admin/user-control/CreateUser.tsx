@@ -5,7 +5,7 @@ import { Dispatch, SetStateAction, useState } from 'react';
 import axios from 'axios';
 import { Password } from 'primereact/password';
 
-const CreateUser = ({ isDialogOpen, setIsDialogOpen }: { isDialogOpen: boolean, setIsDialogOpen: Dispatch<SetStateAction<boolean>> }) => {
+const CreateUser = ({ isDialogOpen, setIsDialogOpen, fetchUsers }: { isDialogOpen: boolean, setIsDialogOpen: Dispatch<SetStateAction<boolean>>, fetchUsers: () => void }) => {
   const [username, setUsername] = useState('');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -37,6 +37,7 @@ const CreateUser = ({ isDialogOpen, setIsDialogOpen }: { isDialogOpen: boolean, 
       console.log('password', password);
       await axios.post(process.env.NEXT_PUBLIC_BACKEND_URL + '/admin/users', { username, name, email, password });
       setIsDialogOpen(false);
+      fetchUsers();
     } catch (error) {
       console.error(error);
       setError('Failed to create user');

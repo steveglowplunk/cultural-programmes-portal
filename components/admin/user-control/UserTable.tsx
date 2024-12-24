@@ -5,10 +5,12 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import DeleteUser from "./DeleteUser";
 import EditUser from "./EditUser";
+import CreateUser from "./CreateUser";
 
 const UserTable = () => {
   const [users, setUsers] = useState<any[]>([]);
   const [editUser, setEditUser] = useState<any>(null);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState<boolean>(false);
 
   const handleUserDeleted = () => {
     // Refresh user list or show a success message
@@ -55,25 +57,42 @@ const UserTable = () => {
   const actionBodyTemplate = (rowData: any) => {
     return (
       <div>
-        <EditUser username={rowData.username} onEditSuccess={() => {}} />
+        <EditUser username={rowData.username} onEditSuccess={fetchUsers} />
         <DeleteUser userId={rowData._id} onDeleteSuccess={handleUserDeleted} />
       </div>
     );
   };
 
   return (
-    <DataTable
-      value={users}
-      paginator
-      rows={5}
-      rowsPerPageOptions={[5, 10, 25, 50]}
-      tableStyle={{ minWidth: "12rem" }}
-    >
-      <Column field="username" header="Username" />
-      <Column field="email" header="Email" />
-      <Column field="password" header="Password" />
-      <Column body={actionBodyTemplate} header="Actions" />
-    </DataTable>
+    <div>
+      <div className="mr-2 flex items-end justify-end">
+        <Button
+          label="Create User"
+          icon="pi pi-user-plus"
+          className="mr-2"
+          onClick={() => {
+            setIsCreateDialogOpen(true);
+          }}
+        />
+      </div>
+      <CreateUser
+        isDialogOpen={isCreateDialogOpen}
+        setIsDialogOpen={setIsCreateDialogOpen}
+        fetchUsers={fetchUsers}
+      />
+      <DataTable
+        value={users}
+        paginator
+        rows={5}
+        rowsPerPageOptions={[5, 10, 25, 50]}
+        tableStyle={{ minWidth: "12rem" }}
+      >
+        <Column field="username" header="Username" />
+        <Column field="email" header="Email" />
+        <Column field="password" header="Password" />
+        <Column body={actionBodyTemplate} header="Actions" />
+      </DataTable>
+    </div>
   );
 };
 

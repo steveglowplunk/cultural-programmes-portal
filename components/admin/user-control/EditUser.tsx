@@ -13,14 +13,16 @@ const EditUser = ({
 }) => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState<boolean>(false);
   const [email, setEmail] = useState<string>("");
+  const [newUsername, setNewUsername] = useState<string>("");
   const [error, setError] = useState<string>("");
 
   useEffect(() => {
     // Fetch user data when dialog opens
     if (isEditDialogOpen) {
       axios
-        .get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/users/${username}`)
+        .get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/users/byname/${username}`)
         .then((response) => {
+          setNewUsername(response.data.username);
           setEmail(response.data.email);
         })
         .catch((error) => {
@@ -34,6 +36,7 @@ const EditUser = ({
       const response = await axios.put(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/users/${username}`,
         {
+          username: newUsername,
           email,
         }
       );
@@ -59,9 +62,18 @@ const EditUser = ({
         header="Edit User"
         visible={isEditDialogOpen}
         onHide={() => setIsEditDialogOpen(false)}
+        className="w-[25rem]"
       >
-        <div>
-          <div className="p-field">
+        <div className="flex flex-col gap-4">
+          <div className="flex justify-between items-center">
+            <label htmlFor="newusername">Username</label>
+            <InputText
+              id="newusername"
+              value={newUsername}
+              onChange={(e) => setNewUsername(e.target.value)}
+            />
+          </div>
+          <div className="flex justify-between items-center">
             <label htmlFor="email">Email</label>
             <InputText
               id="email"

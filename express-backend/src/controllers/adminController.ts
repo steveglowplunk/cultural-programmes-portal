@@ -5,6 +5,7 @@ import { Location } from "../models/Location";
 import fs from "fs";
 import path from "path";
 const usersFilePath = path.join(__dirname, "../data/Users.ts");
+import { Types } from 'mongoose';
 
 export class AdminController {
   // User CRUD operations
@@ -29,7 +30,19 @@ export class AdminController {
 
   async getUserById(req: Request, res: Response) {
     try {
-      const user = await User.findOne({ username: req.params.id });
+      const user = await User.findById(req.params.id);
+      if (!user) {
+        return res.status(404).send();
+      }
+      res.status(200).send(user);
+    } catch (error) {
+      res.status(500).send(error);
+    }
+  }
+
+  async getUserByName(req: Request, res: Response) {
+    try {
+      const user = await User.findOne({ username: req.params.username });
       if (!user) {
         return res.status(404).send();
       }

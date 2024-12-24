@@ -49,9 +49,9 @@ const UserPage = () => {
       <div className="ml-10 mt-5 flex max-w-[calc(100vw-220px)] items-center">
         <p className="text-3xl">User List</p>
       </div>
-      <div className="mr-2 flex items-end justify-end">
+      {/* <div className="mr-2 flex items-end justify-end">
           <CreateUserButton/>
-      </div>
+      </div> */}
 
 
       {/* <div>
