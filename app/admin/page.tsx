@@ -11,7 +11,7 @@ import { Calendar } from "primereact/calendar";
 
 const AdminPage = () => {
   const [data, setData] = useState<any[]>([]);
-  const [newEvent, setNewEvent] = useState({ name: "", date: "", location: "" });
+  const [newEvent, setNewEvent] = useState({ name: "", predateE: "", venueId: "" });
   const [editEvent, setEditEvent] = useState<any>(null);
   const router = useRouter()
   const [displayDialog, setDisplayDialog] = useState(false);
@@ -52,8 +52,7 @@ const AdminPage = () => {
         }
       );
       setData([...data, response.data]);
-      setNewEvent({ name: "", date: "", location: "" });
-      setDisplayDialog(false);
+      setNewEvent({ eventId: "", predateE: "", venueId: "" }); // Line 61
     } catch (err) {
       console.log(err);
     }
@@ -116,27 +115,25 @@ const AdminPage = () => {
         </div>
       </Dialog> */}
       {/* End of Dialog */}
-      <div style={{ marginBottom: '1rem',marginTop: '1rem' }}>
+      <div style={{ marginBottom: '1rem', marginTop: '1rem' }}>
         <h2 style={{ fontWeight: 'bold', fontSize: '1.5rem' }}>Create New Event</h2>
         <input
           type="text"
           placeholder="Event ID"
-          value={newEvent.eventId}
-          onChange={(e) => setNewEvent({ ...newEvent, name: e.target.value })}
-          style={{ marginBottom: '0.5rem' , marginTop: '1rem' }}
+          value={newEvent.eventId || ""}
+          onChange={(e) => setNewEvent({ ...newEvent, eventId: e.target.value })}
+          style={{ marginBottom: '0.5rem' }}
         />
         <Calendar
-          type="date"
-          placeholder="Date"
-          value={newEvent.date}
-          onChange={(e) => setNewEvent({ ...newEvent, date: e.target.value })}
-          style={{ marginBottom: '0.5rem', marginRight: '0.5rem' , width: '150px' }}
+          value={newEvent.predateE ? new Date(newEvent.predateE) : null}
+          onChange={(e) => setNewEvent({ ...newEvent, predateE: e.value })}
+          style={{ marginBottom: '0.5rem', marginRight: '0.5rem', width: '150px' }}
         />
         <input
           type="text"
           placeholder="Location"
-          value={newEvent.location}
-          onChange={(e) => setNewEvent({ ...newEvent, location: e.target.value })}
+          value={newEvent.venueId || ""}
+          onChange={(e) => setNewEvent({ ...newEvent, venueId: e.target.value })}
           style={{ marginBottom: '0.5rem' }}
         />
         <button onClick={handleCreate}>Create</button>
@@ -145,8 +142,8 @@ const AdminPage = () => {
       <div>
         <h2 style={{ fontWeight: 'bold', fontSize: '1.5rem' }}>Event List</h2>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontWeight: 'bold' }}>
-          <p style={{ flex: 1  }}>Event ID</p>
-          <p style={{ flex: 1,marginLeft: '-5rem'}}>Location ID</p>
+          <p style={{ flex: 1 }}>Event ID</p>
+          <p style={{ flex: 1, marginLeft: '-5rem' }}>Location ID</p>
         </div>
         {data.map((event) => (
           <div key={event._id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -154,24 +151,20 @@ const AdminPage = () => {
               <div>
                 <input
                   type="text"
-                  placeholder="Event ID" 
-                  value={editEvent.eventId}
-                  onChange={(e) => setEditEvent({ ...editEvent, name: e.target.value })}
+                  value={editEvent.eventId || ""}
+                  onChange={(e) => setEditEvent({ ...editEvent, eventId: e.target.value })}
                 />
                 <Calendar
-                  type="date"
-                  placeholder="Date"
-                  value={editEvent.date}
-                  onChange={(e) => setEditEvent({ ...editEvent, date: e.target.value })}
-                  style={{ marginBottom: '0.5rem', marginRight: '0.5rem' , width: '100px', height: '30px' }} 
+                  value={editEvent.predateE ? new Date(editEvent.predateE) : null}
+                  onChange={(e) => setEditEvent({ ...editEvent, predateE: e.value ? e.value.toISOString() : "" })}
+                  style={{ marginBottom: '0.5rem', marginRight: '0.5rem', width: '150px' }}
                 />
                 <input
                   type="text"
-                  placeholder="Location"
-                  value={editEvent.location}
-                  onChange={(e) => setEditEvent({ ...editEvent, location: e.target.value })}
+                  value={editEvent.venueId || ""}
+                  onChange={(e) => setEditEvent({ ...editEvent, venueId: e.target.value })}
                 />
-                <button onClick={() => handleUpdate(event._id)}>Save</button>
+                <button style={{ marginRight: '1rem' }} onClick={() => handleUpdate(event._id)}>Save</button>
                 <button onClick={() => setEditEvent(null)}>Cancel</button>
               </div>
             ) : (
@@ -179,7 +172,7 @@ const AdminPage = () => {
                 <p style={{ flex: 1 }}>{event.eventId}</p>
                 <p style={{ flex: 1 }}>{event.venueId}</p>
                 <div>
-                  <button style={{ marginRight:'1rem' }} onClick={() => setEditEvent(event)}>Edit</button>
+                  <button style={{ marginRight: '1rem' }} onClick={() => setEditEvent(event)}>Edit</button>
                   <button onClick={() => handleDelete(event._id)}>Delete</button>
                 </div>
               </>
