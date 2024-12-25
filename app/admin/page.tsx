@@ -16,32 +16,34 @@ const AdminPage = () => {
   const router = useRouter()
   const [displayDialog, setDisplayDialog] = useState(false);
 
+  const fetchData = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(
+        process.env.NEXT_PUBLIC_BACKEND_URL + "/admin/events",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setData(response.data);
+      console.log('response.data:', response.data)
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const response = await axios.get(
-          process.env.NEXT_PUBLIC_BACKEND_URL + "/admin/data",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        setData(response.data);
-        console.log('response.data:', response.data)
-      } catch (err) {
-        console.log(err);
-      }
-    };
-
     fetchData();
   }, []);
+  
+
   const handleCreate = async () => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.post(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/admin/data",
+        process.env.NEXT_PUBLIC_BACKEND_URL + "/admin/events",
         newEvent,
         {
           headers: {
@@ -61,7 +63,7 @@ const AdminPage = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.put(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/data/${id}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/events/${id}`,
         editEvent,
         {
           headers: {
@@ -79,12 +81,13 @@ const AdminPage = () => {
   const handleDelete = async (id: string) => {
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/data/${id}`, {
+      await axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/events/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      setData(data.filter((event) => event.id !== id));
+      // Update the state to remove the deleted event
+      setData(data.filter((event) => event._id !== id));
     } catch (err) {
       console.log(err);
     }
@@ -92,10 +95,10 @@ const AdminPage = () => {
 
   return (
     <div>
-      <h1>Admin Page</h1>
+      <h1 style={{fontWeight: 'bold', fontSize: '2rem'}}>Admin Page</h1>
       {/* 其他頁面內容 */}
       {/* Create New Event Dialog */}
-      <Dialog header="Create New Event" visible={displayDialog} style={{ width: '50vw' }} onHide={() => setDisplayDialog(false)}>
+      {/* <Dialog header="Create New Event" visible={displayDialog} style={{ width: '50vw' }} onHide={() => setDisplayDialog(false)}>
         <div className="p-fluid">
           <div className="p-field">
             <label htmlFor="name">Name</label>
@@ -111,64 +114,75 @@ const AdminPage = () => {
           </div>
           <Button label="Create" icon="pi pi-check" onClick={handleCreate} />
         </div>
-      </Dialog>
+      </Dialog> */}
       {/* End of Dialog */}
-      <div>
-      <Button label="Create New Event" icon="pi pi-plus" onClick={() => setDisplayDialog(true)} />
-        <h2>Create New Event</h2>
+      <div style={{ marginBottom: '1rem',marginTop: '1rem' }}>
+        <h2 style={{ fontWeight: 'bold', fontSize: '1.5rem' }}>Create New Event</h2>
         <input
           type="text"
-          placeholder="Name"
-          value={newEvent.name}
+          placeholder="Event ID"
+          value={newEvent.eventId}
           onChange={(e) => setNewEvent({ ...newEvent, name: e.target.value })}
+          style={{ marginBottom: '0.5rem' , marginTop: '1rem' }}
         />
-        <input
+        <Calendar
           type="date"
           placeholder="Date"
           value={newEvent.date}
           onChange={(e) => setNewEvent({ ...newEvent, date: e.target.value })}
+          style={{ marginBottom: '0.5rem', marginRight: '0.5rem' , width: '150px' }}
         />
         <input
           type="text"
           placeholder="Location"
           value={newEvent.location}
           onChange={(e) => setNewEvent({ ...newEvent, location: e.target.value })}
+          style={{ marginBottom: '0.5rem' }}
         />
         <button onClick={handleCreate}>Create</button>
       </div>
 
       <div>
-        <h2>Event List</h2>
+        <h2 style={{ fontWeight: 'bold', fontSize: '1.5rem' }}>Event List</h2>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontWeight: 'bold' }}>
+          <p style={{ flex: 1  }}>Event ID</p>
+          <p style={{ flex: 1,marginLeft: '-5rem'}}>Location ID</p>
+        </div>
         {data.map((event) => (
-          <div key={event.id}>
-            {editEvent && editEvent.id === event.id ? (
+          <div key={event._id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            {editEvent && editEvent._id === event._id ? (
               <div>
                 <input
                   type="text"
-                  value={editEvent.name}
+                  placeholder="Event ID" 
+                  value={editEvent.eventId}
                   onChange={(e) => setEditEvent({ ...editEvent, name: e.target.value })}
                 />
-                <input
+                <Calendar
                   type="date"
+                  placeholder="Date"
                   value={editEvent.date}
                   onChange={(e) => setEditEvent({ ...editEvent, date: e.target.value })}
+                  style={{ marginBottom: '0.5rem', marginRight: '0.5rem' , width: '100px', height: '30px' }} 
                 />
                 <input
                   type="text"
+                  placeholder="Location"
                   value={editEvent.location}
                   onChange={(e) => setEditEvent({ ...editEvent, location: e.target.value })}
                 />
-                <button onClick={() => handleUpdate(event.id)}>Save</button>
+                <button onClick={() => handleUpdate(event._id)}>Save</button>
                 <button onClick={() => setEditEvent(null)}>Cancel</button>
               </div>
             ) : (
-              <div>
-                <p>{event.name}</p>
-                <p>{event.date}</p>
-                <p>{event.location}</p>
-                <button onClick={() => setEditEvent(event)}>Edit</button>
-                <button onClick={() => handleDelete(event.id)}>Delete</button>
-              </div>
+              <>
+                <p style={{ flex: 1 }}>{event.eventId}</p>
+                <p style={{ flex: 1 }}>{event.venueId}</p>
+                <div>
+                  <button style={{ marginRight:'1rem' }} onClick={() => setEditEvent(event)}>Edit</button>
+                  <button onClick={() => handleDelete(event._id)}>Delete</button>
+                </div>
+              </>
             )}
           </div>
         ))}

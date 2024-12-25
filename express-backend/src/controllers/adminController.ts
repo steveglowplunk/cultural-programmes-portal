@@ -141,8 +141,13 @@ export class AdminController {
   }
 
   async createEvent(req: Request, res: Response) {
-    // 實現 createEvent 方法的邏輯
-    res.status(200).send("Event created");
+    try {
+      const newEvent = new Event(req.body);
+      const savedEvent = await newEvent.save();
+      res.status(201).json(savedEvent);
+    } catch (error) {
+      res.status(500).json({ message: "Error creating event", error });
+    }
   }
 
   async getEvents(req: Request, res: Response) {
