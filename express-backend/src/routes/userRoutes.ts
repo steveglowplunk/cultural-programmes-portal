@@ -17,7 +17,7 @@ router.get(
 router.get(
   "/locations/distance",
   asyncHandler(userController.filterLocationWithDistance)
-); // get location by distance (to be tested)
+); // get location by distance (work)
 router.get(
   "/locations/category",
   asyncHandler(userController.filterLocationsByEventCategory)

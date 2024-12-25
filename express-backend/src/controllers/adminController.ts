@@ -13,8 +13,37 @@ export class AdminController {
     try {
       const user = new User(req.body);
       await user.save();
+
+      // 確定 Users.ts 文件的路徑
+      const usersFilePath = path.join(__dirname, "../data/Users.ts");
+      console.log("Users file path:", usersFilePath);
+
+      // 讀取 Users.ts 文件的內容
+      const usersFileContent = fs.readFileSync(usersFilePath, "utf-8");
+
+      // 提取數據
+      const start =
+        usersFileContent.indexOf("export const users = ") +
+        "export const users = ".length;
+      const end = usersFileContent.lastIndexOf(";");
+      const usersDataString = usersFileContent.substring(start, end).trim();
+      const usersData = JSON.parse(usersDataString);
+
+      // 添加新用戶
+      usersData.push(req.body);
+
+      // 將更新後的數據寫回 Users.ts 文件
+      const updatedUsersFileContent = `export const users = ${JSON.stringify(
+        usersData,
+        null,
+        2
+      )};`;
+      fs.writeFileSync(usersFilePath, updatedUsersFileContent);
+      console.log("Users file updated successfully");
+
       res.status(201).send(user);
     } catch (error) {
+      console.error("Error updating Users.ts file:", error);
       res.status(400).send(error);
     }
   }
@@ -164,8 +193,39 @@ export class AdminController {
       if (!user) {
         return res.status(404).send();
       }
+
+      // 確定 Users.ts 文件的路徑
+      const usersFilePath = path.join(__dirname, "../data/Users.ts");
+      console.log("Users file path:", usersFilePath);
+
+      // 讀取 Users.ts 文件的內容
+      const usersFileContent = fs.readFileSync(usersFilePath, "utf-8");
+
+      // 提取數據
+      const start =
+        usersFileContent.indexOf("export const users = ") +
+        "export const users = ".length;
+      const end = usersFileContent.lastIndexOf(";");
+      const usersDataString = usersFileContent.substring(start, end).trim();
+      const usersData = JSON.parse(usersDataString);
+
+      // 更新相應的用戶
+      const updatedUsersData = usersData.map((u: any) =>
+        u.username === user.username ? { ...u, ...req.body } : u
+      );
+
+      // 將更新後的數據寫回 Users.ts 文件
+      const updatedUsersFileContent = `export const users = ${JSON.stringify(
+        updatedUsersData,
+        null,
+        2
+      )};`;
+      fs.writeFileSync(usersFilePath, updatedUsersFileContent);
+      console.log("Users file updated successfully");
+
       res.status(200).send(user);
     } catch (error) {
+      console.error("Error updating Users.ts file:", error);
       res.status(400).send(error);
     }
   }
