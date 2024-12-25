@@ -11,7 +11,7 @@ import { Calendar } from "primereact/calendar";
 
 const AdminPage = () => {
   const [data, setData] = useState<any[]>([]);
-  const [newEvent, setNewEvent] = useState({ name: "", predateE: "", venueId: "" });
+  const [newEvent, setNewEvent] = useState({ name: "", predateE: "", venueId: "", eventId: "" });
   const [editEvent, setEditEvent] = useState<any>(null);
   const router = useRouter()
   const [displayDialog, setDisplayDialog] = useState(false);
@@ -33,11 +33,11 @@ const AdminPage = () => {
       console.log(err);
     }
   };
-  
+
   useEffect(() => {
     fetchData();
   }, []);
-  
+
 
   const handleCreate = async () => {
     try {
@@ -52,7 +52,8 @@ const AdminPage = () => {
         }
       );
       setData([...data, response.data]);
-      setNewEvent({ eventId: "", predateE: "", venueId: "" }); // Line 61
+      setNewEvent({ name: "", eventId: "", predateE: "", venueId: "" }); // Line 61
+      fetchData();
     } catch (err) {
       console.log(err);
     }
@@ -72,6 +73,7 @@ const AdminPage = () => {
       );
       setData(data.map((event) => (event.id === id ? response.data : event)));
       setEditEvent(null);
+      fetchData();
     } catch (err) {
       console.log(err);
     }
@@ -87,14 +89,15 @@ const AdminPage = () => {
       });
       // Update the state to remove the deleted event
       setData(data.filter((event) => event._id !== id));
+      fetchData();
     } catch (err) {
       console.log(err);
     }
   };
 
   return (
-    <div>
-      <h1 style={{fontWeight: 'bold', fontSize: '2rem'}}>Admin Page</h1>
+    <div className="m-4">
+      <h1 style={{ fontWeight: 'bold', fontSize: '2rem' }}>Admin Page</h1>
       {/* 其他頁面內容 */}
       {/* Create New Event Dialog */}
       {/* <Dialog header="Create New Event" visible={displayDialog} style={{ width: '50vw' }} onHide={() => setDisplayDialog(false)}>
@@ -117,63 +120,89 @@ const AdminPage = () => {
       {/* End of Dialog */}
       <div style={{ marginBottom: '1rem', marginTop: '1rem' }}>
         <h2 style={{ fontWeight: 'bold', fontSize: '1.5rem' }}>Create New Event</h2>
-        <input
-          type="text"
-          placeholder="Event ID"
-          value={newEvent.eventId || ""}
-          onChange={(e) => setNewEvent({ ...newEvent, eventId: e.target.value })}
-          style={{ marginBottom: '0.5rem' }}
-        />
-        <Calendar
-          value={newEvent.predateE ? new Date(newEvent.predateE) : null}
-          onChange={(e) => setNewEvent({ ...newEvent, predateE: e.value })}
-          style={{ marginBottom: '0.5rem', marginRight: '0.5rem', width: '150px' }}
-        />
-        <input
-          type="text"
-          placeholder="Location"
-          value={newEvent.venueId || ""}
-          onChange={(e) => setNewEvent({ ...newEvent, venueId: e.target.value })}
-          style={{ marginBottom: '0.5rem' }}
-        />
-        <button onClick={handleCreate}>Create</button>
+        <div className="flex items-center space-x-2">
+          <InputText
+            type="text"
+            placeholder="Event ID"
+            value={newEvent.eventId || ""}
+            onChange={(e) => setNewEvent({ ...newEvent, eventId: e.target.value })}
+            // style={{ marginBottom: '0.5rem' }}
+          />
+          {/* <Calendar
+            value={newEvent.predateE ? new Date(newEvent.predateE) : null}
+            onChange={(e) => setNewEvent({ ...newEvent, predateE: e.value?.toISOString as unknown as string || "" })}
+            style={{ marginBottom: '0.5rem', marginRight: '0.5rem', width: '150px' }}
+          /> */}
+          <InputText
+            type="text"
+            placeholder="Date"
+            value={newEvent.predateE || ""}
+            onChange={(e) => setNewEvent({ ...newEvent, predateE: e.target.value })}
+            // style={{ marginBottom: '0.5rem' }}
+          />
+          <InputText
+            type="text"
+            placeholder="Location"
+            value={newEvent.venueId || ""}
+            onChange={(e) => setNewEvent({ ...newEvent, venueId: e.target.value })}
+            // style={{ marginBottom: '0.5rem' }}
+          />
+          <Button onClick={handleCreate}>Create</Button>
+        </div>
       </div>
 
       <div>
         <h2 style={{ fontWeight: 'bold', fontSize: '1.5rem' }}>Event List</h2>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontWeight: 'bold' }}>
-          <p style={{ flex: 1 }}>Event ID</p>
-          <p style={{ flex: 1, marginLeft: '-5rem' }}>Location ID</p>
-        </div>
+        {/* <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontWeight: 'bold' }}> */}
+          <div className="flex justify-between font-bold">
+            <p style={{ flex: 1 }}>Event ID</p>
+            <p className="flex-1">Name</p>
+            <p className="flex-1">Date</p>
+            <p style={{ flex: 1 }}>Location ID</p>
+            <br className="w-44" />
+          </div>
+        {/* </div> */}
         {data.map((event) => (
           <div key={event._id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             {editEvent && editEvent._id === event._id ? (
               <div>
-                <input
+                <InputText
                   type="text"
                   value={editEvent.eventId || ""}
                   onChange={(e) => setEditEvent({ ...editEvent, eventId: e.target.value })}
                 />
-                <Calendar
+                <InputText
+                  type="text"
+                  value={editEvent.titleE || ""}
+                  onChange={(e) => setEditEvent({ ...editEvent, titleE: e.target.value })}
+                />
+                {/* <Calendar
                   value={editEvent.predateE ? new Date(editEvent.predateE) : null}
                   onChange={(e) => setEditEvent({ ...editEvent, predateE: e.value ? e.value.toISOString() : "" })}
                   style={{ marginBottom: '0.5rem', marginRight: '0.5rem', width: '150px' }}
+                /> */}
+                <InputText
+                  type="text"
+                  value={editEvent.predateE || ""}
+                  onChange={(e) => setEditEvent({ ...editEvent, predateE: e.target.value })}
                 />
-                <input
+                <InputText
                   type="text"
                   value={editEvent.venueId || ""}
                   onChange={(e) => setEditEvent({ ...editEvent, venueId: e.target.value })}
                 />
-                <button style={{ marginRight: '1rem' }} onClick={() => handleUpdate(event._id)}>Save</button>
-                <button onClick={() => setEditEvent(null)}>Cancel</button>
+                <Button style={{ marginRight: '1rem' }} onClick={() => handleUpdate(event._id)}>Save</Button>
+                <Button onClick={() => setEditEvent(null)}>Cancel</Button>
               </div>
             ) : (
               <>
                 <p style={{ flex: 1 }}>{event.eventId}</p>
+                <p style={{ flex: 1 }}>{event.titleE}</p>
+                <p style={{ flex: 1 }}>{event.predateE}</p>
                 <p style={{ flex: 1 }}>{event.venueId}</p>
                 <div>
-                  <button style={{ marginRight: '1rem' }} onClick={() => setEditEvent(event)}>Edit</button>
-                  <button onClick={() => handleDelete(event._id)}>Delete</button>
+                  <Button style={{ marginRight: '1rem' }} onClick={() => setEditEvent(event)}>Edit</Button>
+                  <Button onClick={() => handleDelete(event._id)}>Delete</Button>
                 </div>
               </>
             )}
