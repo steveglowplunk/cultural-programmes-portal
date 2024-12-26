@@ -60,6 +60,7 @@ const EventInfo = () => {
   const [selectedCategory, setSelectedCategory] = useState<any>();
   const [filterDistance, setFilterDistance] = useState<number>(50);
   const [filterDistanceCenter, setFilterDistanceCenter] = useState<Location>();
+  const [filteredLocations, setFilteredLocations] = useState<Location[]>(locations);
 
   const categoryList = [
     { name: "Concert Hall" },
@@ -157,11 +158,11 @@ const EventInfo = () => {
   };
 
   const sortedLocations = useMemo(() => {
-    let filteredLocations = locations;
+    let locationsToSort = filteredLocations;
 
     // First filter by category if selected
     if (selectedCategory) {
-      filteredLocations = filteredLocations.filter((loc) =>
+      locationsToSort = locationsToSort.filter((loc) =>
         loc.venueName.includes(selectedCategory.name)
       );
     }
@@ -169,13 +170,13 @@ const EventInfo = () => {
 
     // Then filter by favorites if needed
     if (filterBy === FilterBy.Favourite) {
-      filteredLocations = filteredLocations.filter((loc) =>
+      locationsToSort = locationsToSort.filter((loc) =>
         favList.includes(loc.venueId)
       );
     }
 
     // Sort the filtered results
-    const sorted = [...filteredLocations].sort((a, b) => {
+    const sorted = [...locationsToSort].sort((a, b) => {
       if (sortBy === SortBy.Alphabet) {
         return a.venueName.localeCompare(b.venueName);
       }
@@ -189,7 +190,7 @@ const EventInfo = () => {
     ]));
 
     return sorted;
-  }, [locations, filterBy, favList, sortBy, selectedCategory]);
+  }, [filteredLocations, filterBy, favList, sortBy, selectedCategory]);
 
   const handleSelectLocation = (e: ListBoxChangeEvent) => {
     const location = e.value as Location;
@@ -235,7 +236,7 @@ const EventInfo = () => {
   }
 
   const handleOverlayHide = () => {
-    setFilterDistance(50);
+    // setFilterDistance(50);
   }
 
   const handleSliderChange = (e: SliderChangeEvent) => {
@@ -262,33 +263,34 @@ const EventInfo = () => {
           parseFloat(filterDistanceCenter.longitude)
         );
   
-        const filteredMarkers: LatLngTuple[] = locations
-          .filter((loc) => {
-            if (!loc.latitude || !loc.longitude) {
-              console.warn("Invalid location:", loc);
-              return false;
-            }
+        const filtered = locations.filter((loc) => {
+          if (!loc.latitude || !loc.longitude) {
+            console.warn("Invalid location:", loc);
+            return false;
+          }
   
-            const locPoint = latLng(
-              parseFloat(loc.latitude),
-              parseFloat(loc.longitude)
-            );
-  
-            const distance = centerPoint.distanceTo(locPoint);
-            console.log(`Distance for ${loc.venueName}:`, distance / 1000, "km");
-  
-            return distance <= filterDistance * 1000;
-          })
-          .map((loc): LatLngTuple => [
+          const locPoint = latLng(
             parseFloat(loc.latitude),
             parseFloat(loc.longitude)
-          ]);
+          );
   
+          const distance = centerPoint.distanceTo(locPoint);
+          return distance <= filterDistance * 1000;
+        });
+  
+        const filteredMarkers: LatLngTuple[] = filtered.map((loc): LatLngTuple => [
+          parseFloat(loc.latitude),
+          parseFloat(loc.longitude)
+        ]);
+  
+        setFilteredLocations(filtered);
         setMarkerList(filteredMarkers);
         setMarker([centerPoint.lat, centerPoint.lng]);
       } catch (error) {
         console.error("Error in distance filtering:", error);
       }
+    } else {
+      setFilteredLocations(locations);
     }
   }, [filterDistance, filterDistanceCenter, locations]);
 
@@ -298,7 +300,7 @@ const EventInfo = () => {
         {page === SideBarPage.VenueList ? (
           <div>
             <OverlayPanel ref={op} onHide={handleOverlayHide}>
-              <p>Filter by distance</p>
+              <p>Filter by distance (in km)</p>
               <InputText
                 value={filterDistance.toString()}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFilterDistance(Number(e.target.value))}
