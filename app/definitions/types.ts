@@ -11,6 +11,7 @@ export interface Location {
     onShowDetails: (location: Location) => void;
     onFavClick: (location: Location) => void;
     onShowComments: (location: Location) => void;
+    onDistanceFilterClicked: (location: Location, e: React.MouseEvent<HTMLButtonElement>) => void;
 }
 
 export interface Event {

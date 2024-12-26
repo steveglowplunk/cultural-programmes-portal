@@ -1,19 +1,25 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ListBox, ListBoxChangeEvent } from "primereact/listbox";
 import axios from "axios";
 import { Location } from "@/app/definitions/types";
 import LocationItem from "@/components/event/LocationItem";
-import { LatLngExpression, LatLngTuple } from "leaflet";
+import { LatLngExpression, LatLngTuple, CRS, latLng } from "leaflet";
 import LocationDetailsPanel from "@/components/event/LocationDetailsPanel";
 import withAuth from "@/app/withAuth";
 import CommentList from "@/components/comment/CommentList";
 import { Button } from "primereact/button";
 import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
+import { OverlayPanel } from "primereact/overlaypanel";
+import { InputText } from "primereact/inputtext";
+import { Slider, SliderChangeEvent } from "primereact/slider";
+import { set } from "mongoose";
 
 const EventInfo = () => {
+  const op = useRef<OverlayPanel>(null);
+
   const Map = useMemo(
     () =>
       dynamic(() => import("@/components/map/"), {
@@ -52,6 +58,8 @@ const EventInfo = () => {
   const [zoom, setZoom] = useState<number>(11);
   const [isShowComments, setIsShowComments] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<any>();
+  const [filterDistance, setFilterDistance] = useState<number>(50);
+  const [filterDistanceCenter, setFilterDistanceCenter] = useState<Location>();
 
   const categoryList = [
     { name: "Concert Hall" },
@@ -98,6 +106,7 @@ const EventInfo = () => {
         userName: username || "",
         isFavourite: favorites.includes(location.venueId),
         onShowComments: handleShowComments,
+        onDistanceFilterClicked: handleDistanceFilterClicked
       }));
 
       setLocations(locationsWithSelection);
@@ -216,12 +225,94 @@ const EventInfo = () => {
     setIsShowComments(true);
   }
 
+  const handleDistanceFilterClicked = (location: Location, e: React.MouseEvent<HTMLButtonElement>) => {
+    console.log("Distance filter clicked for:", location);
+    setFilterDistanceCenter(location);
+    setZoom(11);
+    if (op.current) {
+      op.current.toggle(e);
+    }
+  }
+
+  const handleOverlayHide = () => {
+    setFilterDistance(50);
+  }
+
+  const handleSliderChange = (e: SliderChangeEvent) => {
+    setFilterDistance(e.value as number);
+  }
+
+  // useEffect(() => {
+  //   if (filterDistanceCenter && filterDistance) {
+  //     const filteredMarkers = locations.filter((loc) => {
+  //       const locLatLng: LatLngTuple = [parseFloat(loc.latitude), parseFloat(loc.longitude)];
+  //       const centerLatLng: LatLngTuple = [parseFloat(filterDistanceCenter.latitude), parseFloat(filterDistanceCenter.longitude)];
+  //       return CRS.Earth.distance(locLatLng, centerLatLng) <= filterDistance * 1000; // Convert km to meters
+  //     }).map((loc) => [parseFloat(loc.latitude), parseFloat(loc.longitude)]);
+
+  //     setMarkerList(filteredMarkers);
+  //   }
+  // }, [filterDistance, filterDistanceCenter, locations]);
+
+  useEffect(() => {
+    if (filterDistanceCenter && filterDistance) {
+      try {
+        const centerPoint = latLng(
+          parseFloat(filterDistanceCenter.latitude),
+          parseFloat(filterDistanceCenter.longitude)
+        );
+  
+        const filteredMarkers: LatLngTuple[] = locations
+          .filter((loc) => {
+            if (!loc.latitude || !loc.longitude) {
+              console.warn("Invalid location:", loc);
+              return false;
+            }
+  
+            const locPoint = latLng(
+              parseFloat(loc.latitude),
+              parseFloat(loc.longitude)
+            );
+  
+            const distance = centerPoint.distanceTo(locPoint);
+            console.log(`Distance for ${loc.venueName}:`, distance / 1000, "km");
+  
+            return distance <= filterDistance * 1000;
+          })
+          .map((loc): LatLngTuple => [
+            parseFloat(loc.latitude),
+            parseFloat(loc.longitude)
+          ]);
+  
+        setMarkerList(filteredMarkers);
+        setMarker([centerPoint.lat, centerPoint.lng]);
+      } catch (error) {
+        console.error("Error in distance filtering:", error);
+      }
+    }
+  }, [filterDistance, filterDistanceCenter, locations]);
 
   return (
     <>
       <div className="flex mx-4">
         {page === SideBarPage.VenueList ? (
           <div>
+            <OverlayPanel ref={op} onHide={handleOverlayHide}>
+              <p>Filter by distance</p>
+              <InputText
+                value={filterDistance.toString()}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFilterDistance(Number(e.target.value))}
+                className="w-full"
+              />
+              <Slider
+                value={filterDistance}
+                onChange={handleSliderChange}
+                className="w-full"
+                min={1}
+                max={50}
+                step={5}
+              />
+            </OverlayPanel>
             <div className="flex [&>*]:text-xl my-2 space-x-4">
               <button
                 className={`${filterBy === FilterBy.All ? "border-b-2 border-cyan-700" : ""}`}

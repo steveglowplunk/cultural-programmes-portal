@@ -10,12 +10,16 @@ const LocationItem = (option: Location) => {
         setIsToggled(!isToggled);
     };
 
+    const handleDistanceFilterClicked = (option: Location, e: React.MouseEvent<HTMLButtonElement>) => {
+        option.onDistanceFilterClicked(option, e);
+    };
+
     useEffect(() => {
         setIsToggled(option.isFavourite);
     }, [option.isFavourite]);
 
     return (
-        <div className='border-b border-gray-200 pb-2'>
+        <div className='border-b border-gray-200 pb-2 group'>
             <div className=" flex justify-between items-center">
                 <div>
                     <div>{option.venueName}</div>
@@ -25,23 +29,28 @@ const LocationItem = (option: Location) => {
                     className="p-button-text"
                     onClick={handleToggle}
                 />
+                <Button
+                    icon="pi pi-filter"
+                    className="p-button-text hidden group-hover:inline-block"
+                    onClick={(e) => handleDistanceFilterClicked(option, e)}
+                />
             </div>
             <p>
                 <span className='font-bold'>No. of events: </span> {option.eventsCount}
             </p>
-            {option.isSelected && 
-            <div className='flex space-x-2'>
-                <button className='hover:underline space-x-2'
-                    onClick={() => option.onShowDetails(option)}>
-                    <span>Show details</span>
-                    <i className='pi pi-arrow-right'></i>
-                </button>
-                <button className='hover:underline space-x-2'
-                    onClick={() => option.onShowComments(option)}>
-                    <span>Show Comments</span>
-                    <i className='pi pi-comments'></i>
-                </button>
-            </div>}
+            {option.isSelected &&
+                <div className='flex space-x-2'>
+                    <button className='hover:underline space-x-2'
+                        onClick={() => option.onShowDetails(option)}>
+                        <span>Show details</span>
+                        <i className='pi pi-arrow-right'></i>
+                    </button>
+                    <button className='hover:underline space-x-2'
+                        onClick={() => option.onShowComments(option)}>
+                        <span>Show Comments</span>
+                        <i className='pi pi-comments'></i>
+                    </button>
+                </div>}
         </div>
     );
 };
