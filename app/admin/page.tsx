@@ -11,7 +11,7 @@ import { Calendar } from "primereact/calendar";
 
 const AdminPage = () => {
   const [data, setData] = useState<any[]>([]);
-  const [newEvent, setNewEvent] = useState({ name: "", predateE: "", venueId: "", eventId: "" });
+  const [newEvent, setNewEvent] = useState({ titleE: "", predateE: "", venueId: "", eventId: "" });
   const [editEvent, setEditEvent] = useState<any>(null);
   const router = useRouter()
   const [displayDialog, setDisplayDialog] = useState(false);
@@ -52,7 +52,7 @@ const AdminPage = () => {
         }
       );
       setData([...data, response.data]);
-      setNewEvent({ name: "", eventId: "", predateE: "", venueId: "" }); // Line 61
+      setNewEvent({ titleE: "", eventId: "", predateE: "", venueId: "" }); // Line 61
       fetchData();
     } catch (err) {
       console.log(err);
@@ -133,6 +133,13 @@ const AdminPage = () => {
             onChange={(e) => setNewEvent({ ...newEvent, predateE: e.value?.toISOString as unknown as string || "" })}
             style={{ marginBottom: '0.5rem', marginRight: '0.5rem', width: '150px' }}
           /> */}
+          <InputText
+            type="text"
+            placeholder="Name"
+            value={newEvent.titleE || ""}
+            onChange={(e) => setNewEvent({ ...newEvent, titleE: e.target.value })}
+            // style={{ marginBottom: '0.5rem' }}
+          />
           <InputText
             type="text"
             placeholder="Date"
